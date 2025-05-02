@@ -1,0 +1,28 @@
+{
+  "kind": "collectionType",
+  "collectionName": "tenders",
+  "info": {
+    "singularName": "tender",
+    "pluralName": "tenders",
+    "displayName": "Tender"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "richtext",
+      "required": true
+    },
+    "vendors": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::vendor.vendor",
+      "mappedBy": "tenders"
+    }
+  }
+}

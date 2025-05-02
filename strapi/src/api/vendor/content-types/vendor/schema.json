@@ -1,0 +1,41 @@
+{
+  "kind": "collectionType",
+  "collectionName": "vendors",
+  "info": {
+    "singularName": "vendor",
+    "pluralName": "vendors",
+    "displayName": "Vendor"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "fullName": {
+      "type": "string",
+      "required": true
+    },
+    "email": {
+      "type": "email",
+      "required": true,
+      "unique": true
+    },
+    "phoneNumber": {
+      "type": "string",
+      "required": true
+    },
+    "country": {
+      "type": "enumeration",
+      "enum": [
+        "AL",
+        "UK",
+        "US"
+      ]
+    },
+    "tenders": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::tender.tender",
+      "inversedBy": "vendors"
+    }
+  }
+}
