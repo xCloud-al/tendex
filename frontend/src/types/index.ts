@@ -6,17 +6,17 @@ export interface User {
   avatar?: string;
 }
 
-export interface Tender {
+export interface Vendor {
   id: string;
-  title: string;
-  description: string;
-  publishDate: string;
-  deadline: string;
-  status: 'active' | 'evaluation' | 'completed';
-  category: string;
-  submissionCount: number;
-  documents: any[];
-  budget: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  registrationNumber: string;
+  taxId: string;
+  experience: number;
+  rating: number;
+  completedProjects: number;
 }
 
 export interface Document {
@@ -28,20 +28,38 @@ export interface Document {
   url: string;
 }
 
+export interface Tender {
+  id: string;
+  title: string;
+  description: string;
+  publishDate: string;
+  deadline: string;
+  status: 'active' | 'evaluation' | 'completed';
+  budget: number;
+  category: string;
+  requirements: string[];
+  documents: Document[];
+}
+
 export interface Submission {
   id: string;
   tenderId: string;
-  vendor: {
-    name: string;
-    email: string;
-  };
+  vendor: Vendor;
   submittedDate: string;
-  documentCount: number;
   status: 'submitted' | 'qualified' | 'disqualified' | 'accepted';
+  documentCount: number;
+  documents: Document[];
   aiCheck?: {
     isQualified: boolean;
     reasons: string[];
     score: number;
+  };
+  evaluation?: {
+    technicalScore: number;
+    financialScore: number;
+    qualificationScore: number;
+    totalScore: number;
+    comments: string;
   };
 }
 

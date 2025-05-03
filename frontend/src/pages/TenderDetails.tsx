@@ -255,7 +255,7 @@ const TenderDetails: React.FC = () => {
                   <span className="text-neutral-500 text-sm">
                     {submissions.length} submission{submissions.length !== 1 ? 's' : ''}
                   </span>
-                  {!isActive && (
+                  {!isActive && !isCompleted && (
                     <button
                       onClick={handleAICheck}
                       disabled={hasRunAICheck}
@@ -408,224 +408,6 @@ const TenderDetails: React.FC = () => {
           </div>
         );
       
-      case 'evaluation':
-        return (
-          <div className="bg-white rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold">Evaluation Process</h2>
-                {isEvaluation && (
-                  <Link 
-                    to={`/evaluation/${id}`} 
-                    className="inline-flex items-center px-3 py-1.5 bg-warning-50 text-warning-700 text-sm font-medium rounded-md border border-warning-200 hover:bg-warning-100 transition-colors"
-                  >
-                    <FileCheck className="h-4 w-4 mr-1.5" />
-                    Continue Evaluation
-                  </Link>
-                )}
-                {isCompleted && (
-                  <Link 
-                    to={`/reports/${id}`}
-                    className="inline-flex items-center px-3 py-1.5 bg-primary-50 text-primary-700 text-sm font-medium rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
-                  >
-                    <BarChart className="h-4 w-4 mr-1.5" />
-                    View Final Report
-                  </Link>
-                )}
-              </div>
-              
-              {isActive && (
-                <div className="bg-neutral-50 border border-neutral-200 rounded-lg p-6 text-center">
-                  <Clock className="h-12 w-12 text-neutral-400 mx-auto mb-3" />
-                  <h3 className="text-lg font-medium text-neutral-800 mb-2">Waiting for Deadline</h3>
-                  <p className="text-neutral-600 mb-4">
-                    The evaluation process will begin after the submission deadline has passed.
-                  </p>
-                  <div className="inline-flex items-center px-3 py-1.5 bg-neutral-200 text-neutral-700 text-sm font-medium rounded-md">
-                    <Calendar className="h-4 w-4 mr-1.5" />
-                    Deadline: {formatDate(tender.deadline)}
-                  </div>
-                </div>
-              )}
-              
-              {isEvaluation && (
-                <div>
-                  <div className="mb-6">
-                    <div className="relative pt-1">
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <span className="text-xs font-semibold inline-block text-primary-600">
-                            Evaluation Progress
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-xs font-semibold inline-block text-primary-600">
-                            45%
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex h-2 mb-4 overflow-hidden text-xs rounded bg-primary-100">
-                        <div 
-                          style={{ width: "45%" }} 
-                          className="flex flex-col justify-center text-center text-white bg-primary-600 shadow-none whitespace-nowrap"
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="border border-neutral-200 rounded-lg overflow-hidden">
-                      <div className="bg-primary-50 px-4 py-3 border-b border-primary-200">
-                        <h3 className="text-primary-800 font-medium">1. Technical Evaluation</h3>
-                      </div>
-                      <div className="p-4">
-                        <p className="text-neutral-600 mb-3">
-                          Review of technical proposals for compliance with specifications and requirements.
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-medium text-neutral-500">8 of 12 reviews completed</span>
-                          <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-100 text-warning-700">
-                            In Progress
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="border border-neutral-200 rounded-lg overflow-hidden">
-                      <div className="bg-success-50 px-4 py-3 border-b border-success-200">
-                        <h3 className="text-success-800 font-medium">2. Financial Evaluation</h3>
-                      </div>
-                      <div className="p-4">
-                        <p className="text-neutral-600 mb-3">
-                          Assessment of financial proposals for cost-effectiveness and feasibility.
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-medium text-neutral-500">12 of 12 reviews completed</span>
-                          <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-700">
-                            Completed
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="border border-neutral-200 rounded-lg overflow-hidden">
-                      <div className="bg-neutral-50 px-4 py-3 border-b border-neutral-200">
-                        <h3 className="text-neutral-700 font-medium">3. Vendor Qualification</h3>
-                      </div>
-                      <div className="p-4">
-                        <p className="text-neutral-600 mb-3">
-                          Verification of vendor credentials, experience, and track record.
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-medium text-neutral-500">0 of 12 reviews completed</span>
-                          <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-100 text-neutral-700">
-                            Not Started
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {isCompleted && (
-                <div className="space-y-6">
-                  <div className="bg-success-50 border-l-4 border-success-500 p-4 rounded">
-                    <div className="flex">
-                      <div className="flex-shrink-0">
-                        <CheckCircle className="h-5 w-5 text-success-500" />
-                      </div>
-                      <div className="ml-3">
-                        <h3 className="text-sm font-medium text-success-800">
-                          Evaluation Complete
-                        </h3>
-                        <div className="mt-2 text-sm text-success-700">
-                          <p>
-                            The evaluation process has been completed and a winner has been selected.
-                            The final report is available for review.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="border border-neutral-200 rounded-lg overflow-hidden">
-                    <div className="bg-neutral-50 p-4 border-b border-neutral-200">
-                      <h3 className="font-semibold text-neutral-800">Evaluation Summary</h3>
-                    </div>
-                    <div className="p-4">
-                      <div className="space-y-4">
-                        <div>
-                          <h4 className="text-sm font-medium text-neutral-700 mb-2">Technical Score</h4>
-                          <div className="w-full bg-neutral-200 rounded-full h-2.5">
-                            <div className="bg-primary-600 h-2.5 rounded-full" style={{ width: '85%' }}></div>
-                          </div>
-                          <div className="flex justify-between mt-1">
-                            <span className="text-xs text-neutral-500">0</span>
-                            <span className="text-xs font-medium text-primary-600">85/100</span>
-                            <span className="text-xs text-neutral-500">100</span>
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <h4 className="text-sm font-medium text-neutral-700 mb-2">Financial Score</h4>
-                          <div className="w-full bg-neutral-200 rounded-full h-2.5">
-                            <div className="bg-primary-600 h-2.5 rounded-full" style={{ width: '72%' }}></div>
-                          </div>
-                          <div className="flex justify-between mt-1">
-                            <span className="text-xs text-neutral-500">0</span>
-                            <span className="text-xs font-medium text-primary-600">72/100</span>
-                            <span className="text-xs text-neutral-500">100</span>
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <h4 className="text-sm font-medium text-neutral-700 mb-2">Qualification Score</h4>
-                          <div className="w-full bg-neutral-200 rounded-full h-2.5">
-                            <div className="bg-primary-600 h-2.5 rounded-full" style={{ width: '90%' }}></div>
-                          </div>
-                          <div className="flex justify-between mt-1">
-                            <span className="text-xs text-neutral-500">0</span>
-                            <span className="text-xs font-medium text-primary-600">90/100</span>
-                            <span className="text-xs text-neutral-500">100</span>
-                          </div>
-                        </div>
-                        
-                        <div className="pt-2 mt-2 border-t border-neutral-200">
-                          <h4 className="text-sm font-medium text-neutral-700 mb-2">Total Weighted Score</h4>
-                          <div className="w-full bg-neutral-200 rounded-full h-2.5">
-                            <div className="bg-success-600 h-2.5 rounded-full" style={{ width: '82%' }}></div>
-                          </div>
-                          <div className="flex justify-between mt-1">
-                            <span className="text-xs text-neutral-500">0</span>
-                            <span className="text-xs font-medium text-success-600">82/100</span>
-                            <span className="text-xs text-neutral-500">100</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="border border-success-200 rounded-lg overflow-hidden bg-success-50">
-                    <div className="p-4">
-                      <h3 className="font-semibold text-success-800 mb-2">Selected Vendor</h3>
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10 rounded-full bg-success-200 flex items-center justify-center">
-                          <span className="text-success-700 font-medium">AT</span>
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-success-900">AlphaTech Solutions</div>
-                          <div className="text-sm text-success-700">Selected on {formatDate('2025-03-15')}</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        );
-        
       default:
         return null;
     }
@@ -649,16 +431,26 @@ const TenderDetails: React.FC = () => {
             <Share2 className="h-5 w-5 mr-1.5" />
             Share
           </button>
-          <button
-            onClick={handleEdit}
-            className="inline-flex items-center px-3 py-2 bg-primary-50 text-primary-700 rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
+          {new Date(tender.deadline) > new Date() && (
+            <button
+              onClick={handleEdit}
+              className="inline-flex items-center px-3 py-1.5 bg-primary-50 text-primary-700 text-sm font-medium rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
+            >
+              <Pencil className="w-4 h-4 mr-1.5" />
+              Edit Tender
+            </button>
+          )}
+          <button 
+            onClick={() => {
+              if (window.confirm('Are you sure you want to delete this tender?')) {
+                // TODO: Implement tender deletion
+                navigate('/tenders');
+              }
+            }}
+            className="inline-flex items-center px-3 py-1.5 bg-error-50 text-error-700 text-sm font-medium rounded-md border border-error-200 hover:bg-error-100 transition-colors"
           >
-            <Pencil className="h-5 w-5 mr-1.5" />
-            Edit
-          </button>
-          <button className="inline-flex items-center px-3 py-2 bg-error-50 text-error-700 rounded-md border border-error-200 hover:bg-error-100 transition-colors">
-            <Trash2 className="h-5 w-5 mr-1.5" />
-            Delete
+            <Trash2 className="w-4 h-4 mr-1.5" />
+            Delete Tender
           </button>
         </div>
       </div>
@@ -735,18 +527,6 @@ const TenderDetails: React.FC = () => {
           >
             Submissions {submissions.length > 0 && `(${submissions.length})`}
           </button>
-          {!isActive && (
-            <button
-              onClick={() => setActiveTab('evaluation')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap
-                        ${activeTab === 'evaluation' 
-                          ? 'border-primary-600 text-primary-600' 
-                          : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
-                        }`}
-            >
-              Evaluation
-            </button>
-          )}
         </nav>
       </div>
       

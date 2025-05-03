@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
   ArrowLeft, FileText, Download, CheckCircle, XCircle, 
-  AlertTriangle, Edit2, FileCheck, BarChart, Upload 
+  AlertTriangle, Edit2, FileCheck, BarChart, Upload, Pencil 
 } from 'lucide-react';
 import { mockTenders, mockSubmissions } from '../data/mockData';
 import { formatDate } from '../utils/dateUtils';
@@ -15,10 +15,12 @@ interface AICheckResult {
 }
 
 const SubmissionEvaluation = () => {
-  const { tenderId, submissionId } = useParams();
+  const { tenderId, submissionId } = useParams<{ tenderId: string; submissionId: string }>();
   const navigate = useNavigate();
-  const [showEditAI, setShowEditAI] = useState(false);
+  const [activeTab, setActiveTab] = useState('details');
   const [aiResult, setAIResult] = useState<AICheckResult | null>(null);
+  const [isEditingAI, setIsEditingAI] = useState(false);
+  const [tempAIResult, setTempAIResult] = useState<AICheckResult | null>(null);
   const [manualScore, setManualScore] = useState<number>(0);
   const [comments, setComments] = useState('');
 
@@ -49,22 +51,21 @@ const SubmissionEvaluation = () => {
   }
 
   const handleEditAI = () => {
-    setShowEditAI(true);
+    setTempAIResult(aiResult);
+    setIsEditingAI(true);
+  };
+
+  const handleCancelEdit = () => {
+    setTempAIResult(null);
+    setIsEditingAI(false);
   };
 
   const handleSaveAI = () => {
-    if (aiResult) {
-      // Update the submission in mockSubmissions
-      const submissionIndex = mockSubmissions.findIndex(s => s.id === submissionId);
-      if (submissionIndex !== -1) {
-        mockSubmissions[submissionIndex] = {
-          ...mockSubmissions[submissionIndex],
-          aiCheck: aiResult,
-          status: aiResult.isQualified ? 'qualified' : 'disqualified'
-        };
-      }
+    if (tempAIResult) {
+      setAIResult(tempAIResult);
+      setIsEditingAI(false);
+      setTempAIResult(null);
     }
-    setShowEditAI(false);
   };
 
   const handleSubmitEvaluation = () => {
@@ -83,13 +84,24 @@ const SubmissionEvaluation = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
         <div>
-          <Link 
-            to={`/tenders/${tenderId}`}
+          <button 
+            onClick={() => navigate(-1)}
             className="text-primary-600 hover:text-primary-800 text-sm flex items-center mb-2"
           >
             ← Back to Tender
-          </Link>
+          </button>
           <h1 className="text-3xl font-bold mb-2">Submission Evaluation</h1>
+        </div>
+        <div className="flex space-x-2 mt-4 sm:mt-0">
+          {new Date(tender.deadline) > new Date() && (
+            <button 
+              onClick={() => navigate(`/tenders/${tenderId}/edit`)}
+              className="inline-flex items-center px-3 py-2 bg-primary-50 text-primary-700 rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
+            >
+              <Pencil className="h-5 w-5 mr-1.5" />
+              Edit Tender
+            </button>
+          )}
         </div>
       </div>
 
@@ -123,8 +135,19 @@ const SubmissionEvaluation = () => {
                 <p className="text-neutral-600">{formatDate(submission.submittedDate)}</p>
               </div>
               <div>
-                <h3 className="text-sm font-medium text-neutral-700 mb-2">Documents</h3>
-                <p className="text-neutral-600">{submission.documentCount} documents</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium text-neutral-700 mb-2">Documents</h3>
+                    <p className="text-neutral-600">{submission.documentCount} documents</p>
+                  </div>
+                  <button
+                    onClick={() => console.log('Download documents')}
+                    className="inline-flex items-center px-2 py-1 bg-neutral-50 text-neutral-700 text-xs font-medium rounded border border-neutral-200 hover:bg-neutral-100 transition-colors"
+                  >
+                    <Download className="w-3 h-3 mr-1" />
+                    Download All
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -133,27 +156,43 @@ const SubmissionEvaluation = () => {
           <div>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">AI Criteria Check</h2>
-              {!aiResult && (
+              {!isEditingAI && aiResult && (
                 <button
                   onClick={handleEditAI}
-                  className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+                  className="inline-flex items-center px-3 py-1.5 bg-primary-50 text-primary-700 text-sm font-medium rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
                 >
-                  <FileCheck className="w-5 h-5 mr-2" />
+                  <FileCheck className="w-4 h-4 mr-1.5" />
                   Edit AI Results
                 </button>
               )}
+              {isEditingAI && (
+                <div className="flex space-x-2">
+                  <button
+                    onClick={handleCancelEdit}
+                    className="inline-flex items-center px-3 py-1.5 bg-neutral-50 text-neutral-700 text-sm font-medium rounded-md border border-neutral-200 hover:bg-neutral-100 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveAI}
+                    className="inline-flex items-center px-3 py-1.5 bg-primary-50 text-primary-700 text-sm font-medium rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              )}
             </div>
 
-            {aiResult && (
+            {(aiResult || isEditingAI) && (
               <div className="space-y-4">
                 <div className={`p-4 rounded-lg ${
-                  aiResult.isQualified 
+                  (isEditingAI ? tempAIResult?.isQualified : aiResult?.isQualified)
                     ? 'bg-warning-50 border border-warning-200' 
                     : 'bg-error-50 border border-error-200'
                 }`}>
                   <div className="flex items-start">
                     <div className="flex-shrink-0">
-                      {aiResult.isQualified ? (
+                      {(isEditingAI ? tempAIResult?.isQualified : aiResult?.isQualified) ? (
                         <AlertTriangle className="h-5 w-5 text-warning-500" />
                       ) : (
                         <XCircle className="h-5 w-5 text-error-500" />
@@ -161,11 +200,13 @@ const SubmissionEvaluation = () => {
                     </div>
                     <div className="ml-3">
                       <h3 className="text-sm font-medium">
-                        {aiResult.isQualified ? 'Qualified for Evaluation' : 'Disqualified'}
+                        {(isEditingAI ? tempAIResult?.isQualified : aiResult?.isQualified) 
+                          ? 'Qualified for Evaluation' 
+                          : 'Disqualified'}
                       </h3>
                       <div className="mt-2 text-sm">
                         <ul className="list-disc pl-5 space-y-1">
-                          {aiResult.reasons.map((reason, index) => (
+                          {(isEditingAI ? tempAIResult?.reasons : aiResult?.reasons)?.map((reason, index) => (
                             <li key={index}>{reason}</li>
                           ))}
                         </ul>
@@ -174,62 +215,42 @@ const SubmissionEvaluation = () => {
                   </div>
                 </div>
 
-                {showEditAI ? (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        Qualification Status
-                      </label>
-                      <select
-                        value={aiResult.isQualified ? 'qualified' : 'disqualified'}
-                        onChange={(e) => setAIResult(prev => prev ? {
-                          ...prev,
-                          isQualified: e.target.value === 'qualified'
-                        } : null)}
-                        className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                      >
-                        <option value="qualified">Qualified</option>
-                        <option value="disqualified">Disqualified</option>
-                      </select>
+                {isEditingAI && (
+                  <div className="p-4 bg-neutral-50 rounded-lg border border-neutral-200">
+                    <h3 className="text-sm font-medium text-neutral-700 mb-3">Edit AI Results</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                          Qualification Status
+                        </label>
+                        <select
+                          value={tempAIResult?.isQualified ? 'qualified' : 'disqualified'}
+                          onChange={(e) => setTempAIResult(prev => prev ? {
+                            ...prev,
+                            isQualified: e.target.value === 'qualified'
+                          } : null)}
+                          className="block w-full px-3 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                        >
+                          <option value="qualified">Qualified</option>
+                          <option value="disqualified">Disqualified</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                          Reasons
+                        </label>
+                        <textarea
+                          value={tempAIResult?.reasons.join('\n')}
+                          onChange={(e) => setTempAIResult(prev => prev ? {
+                            ...prev,
+                            reasons: e.target.value.split('\n').filter(line => line.trim())
+                          } : null)}
+                          rows={4}
+                          className="block w-full px-3 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                          placeholder="Enter reasons (one per line)"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        Reasons
-                      </label>
-                      <textarea
-                        value={aiResult.reasons.join('\n')}
-                        onChange={(e) => setAIResult(prev => prev ? {
-                          ...prev,
-                          reasons: e.target.value.split('\n')
-                        } : null)}
-                        rows={4}
-                        className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                      />
-                    </div>
-                    <div className="flex justify-end space-x-4">
-                      <button
-                        onClick={() => setShowEditAI(false)}
-                        className="px-4 py-2 text-neutral-700 hover:text-neutral-900"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleSaveAI}
-                        className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
-                      >
-                        Save Changes
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex justify-end">
-                    <button
-                      onClick={handleEditAI}
-                      className="inline-flex items-center px-3 py-1.5 text-primary-600 hover:text-primary-700"
-                    >
-                      <Edit2 className="w-4 h-4 mr-1.5" />
-                      Edit AI Results
-                    </button>
                   </div>
                 )}
               </div>
@@ -269,7 +290,7 @@ const SubmissionEvaluation = () => {
                 <div className="flex justify-end">
                   <button
                     onClick={handleSubmitEvaluation}
-                    className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+                    className="inline-flex items-center px-4 py-2 bg-primary-50 text-primary-700 text-base font-medium rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
                   >
                     <CheckCircle className="w-5 h-5 mr-2" />
                     Submit Evaluation
