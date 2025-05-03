@@ -4,7 +4,8 @@
   "info": {
     "singularName": "tender",
     "pluralName": "tenders",
-    "displayName": "Tender"
+    "displayName": "Tender",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -18,11 +19,33 @@
       "type": "richtext",
       "required": true
     },
-    "vendors": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::vendor.vendor",
-      "mappedBy": "tenders"
+    "tender_status": {
+      "type": "enumeration",
+      "enum": [
+        "DRAFT",
+        "ACTIVE",
+        "UNDER EVALUATION",
+        "CLOSED"
+      ],
+      "required": false,
+      "default": "DRAFT"
+    },
+    "open_date": {
+      "type": "datetime"
+    },
+    "deadline": {
+      "type": "datetime",
+      "required": false
+    },
+    "documents": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": true
     }
   }
 }

@@ -1,0 +1,48 @@
+{
+  "kind": "collectionType",
+  "collectionName": "offers",
+  "info": {
+    "singularName": "offer",
+    "pluralName": "offers",
+    "displayName": "Offer",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "offer_status": {
+      "type": "enumeration",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED"
+      ]
+    },
+    "submitted_at": {
+      "type": "datetime"
+    },
+    "score_summary": {
+      "displayName": "ScoreSummary",
+      "type": "component",
+      "repeatable": true,
+      "component": "score.score-summary"
+    },
+    "documents": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "evaluations": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::evaluation.evaluation",
+      "mappedBy": "offer"
+    }
+  }
+}

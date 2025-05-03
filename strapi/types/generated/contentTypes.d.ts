@@ -369,9 +369,83 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiEvaluationEvaluation extends Struct.CollectionTypeSchema {
+  collectionName: 'evaluations';
+  info: {
+    description: '';
+    displayName: 'Evaluation';
+    pluralName: 'evaluations';
+    singularName: 'evaluation';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    comments: Schema.Attribute.RichText;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    criteria_scores: Schema.Attribute.Component<'score.score-summary', true>;
+    evaluator: Schema.Attribute.Relation<
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    final_score: Schema.Attribute.BigInteger;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::evaluation.evaluation'
+    > &
+      Schema.Attribute.Private;
+    offer: Schema.Attribute.Relation<'manyToOne', 'api::offer.offer'>;
+    publishedAt: Schema.Attribute.DateTime;
+    submitted_at: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiOfferOffer extends Struct.CollectionTypeSchema {
+  collectionName: 'offers';
+  info: {
+    description: '';
+    displayName: 'Offer';
+    pluralName: 'offers';
+    singularName: 'offer';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    documents: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
+    evaluations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::evaluation.evaluation'
+    >;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::offer.offer'> &
+      Schema.Attribute.Private;
+    offer_status: Schema.Attribute.Enumeration<['DRAFT', 'SUBMITTED']>;
+    publishedAt: Schema.Attribute.DateTime;
+    score_summary: Schema.Attribute.Component<'score.score-summary', true>;
+    submitted_at: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiTenderTender extends Struct.CollectionTypeSchema {
   collectionName: 'tenders';
   info: {
+    description: '';
     displayName: 'Tender';
     pluralName: 'tenders';
     singularName: 'tender';
@@ -383,25 +457,35 @@ export interface ApiTenderTender extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    deadline: Schema.Attribute.DateTime;
     description: Schema.Attribute.RichText & Schema.Attribute.Required;
+    documents: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::tender.tender'
     > &
       Schema.Attribute.Private;
+    open_date: Schema.Attribute.DateTime;
     publishedAt: Schema.Attribute.DateTime;
+    tender_status: Schema.Attribute.Enumeration<
+      ['DRAFT', 'ACTIVE', 'UNDER EVALUATION', 'CLOSED']
+    > &
+      Schema.Attribute.DefaultTo<'DRAFT'>;
     title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    vendors: Schema.Attribute.Relation<'manyToMany', 'api::vendor.vendor'>;
   };
 }
 
 export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
   collectionName: 'vendors';
   info: {
+    description: '';
     displayName: 'Vendor';
     pluralName: 'vendors';
     singularName: 'vendor';
@@ -410,6 +494,7 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    city: Schema.Attribute.String;
     country: Schema.Attribute.Enumeration<['AL', 'UK', 'US']>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -417,19 +502,19 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
     email: Schema.Attribute.Email &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
-    fullName: Schema.Attribute.String & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::vendor.vendor'
     > &
       Schema.Attribute.Private;
-    phoneNumber: Schema.Attribute.String & Schema.Attribute.Required;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    phone_number: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
-    tenders: Schema.Attribute.Relation<'manyToMany', 'api::tender.tender'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    website: Schema.Attribute.String;
   };
 }
 
@@ -942,6 +1027,8 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
+      'api::evaluation.evaluation': ApiEvaluationEvaluation;
+      'api::offer.offer': ApiOfferOffer;
       'api::tender.tender': ApiTenderTender;
       'api::vendor.vendor': ApiVendorVendor;
       'plugin::content-releases.release': PluginContentReleasesRelease;

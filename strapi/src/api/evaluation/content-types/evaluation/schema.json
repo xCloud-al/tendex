@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "evaluations",
+  "info": {
+    "singularName": "evaluation",
+    "pluralName": "evaluations",
+    "displayName": "Evaluation",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "submitted_at": {
+      "type": "datetime"
+    },
+    "final_score": {
+      "type": "biginteger"
+    },
+    "evaluator": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "offer": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::offer.offer",
+      "inversedBy": "evaluations"
+    },
+    "comments": {
+      "type": "richtext"
+    },
+    "criteria_scores": {
+      "type": "component",
+      "repeatable": true,
+      "component": "score.score-summary"
+    }
+  }
+}

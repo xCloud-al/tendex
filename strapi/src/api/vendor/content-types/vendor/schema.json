@@ -4,13 +4,14 @@
   "info": {
     "singularName": "vendor",
     "pluralName": "vendors",
-    "displayName": "Vendor"
+    "displayName": "Vendor",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
   },
   "attributes": {
-    "fullName": {
+    "name": {
       "type": "string",
       "required": true
     },
@@ -19,7 +20,7 @@
       "required": true,
       "unique": true
     },
-    "phoneNumber": {
+    "phone_number": {
       "type": "string",
       "required": true
     },
@@ -31,11 +32,11 @@
         "US"
       ]
     },
-    "tenders": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::tender.tender",
-      "inversedBy": "vendors"
+    "city": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
     }
   }
 }
