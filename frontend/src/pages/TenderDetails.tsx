@@ -143,13 +143,10 @@ const TenderDetails: React.FC = () => {
         return (
           <div className="bg-white rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
             <div className="p-6">
-              <h2 className="text-xl font-semibold mb-6">Tender Overview</h2>
-              
-              <div className="prose max-w-none">
-                <p className="text-neutral-700">
-                  {tender.description}
-                </p>
-              </div>
+              <div 
+                className="prose prose-sm max-w-none text-neutral-700 prose-headings:text-xl prose-headings:font-semibold prose-headings:mb-4"
+                dangerouslySetInnerHTML={{ __html: tender.description }}
+              />
             </div>
           </div>
         );
@@ -401,7 +398,7 @@ const TenderDetails: React.FC = () => {
             <Share2 className="h-5 w-5 mr-1.5" />
             Share
           </button>
-          {new Date(tender.deadline) > new Date() && (
+          {tender.status === 'active' && (
             <button
               onClick={handleEdit}
               className="inline-flex items-center px-3 py-1.5 bg-primary-50 text-primary-700 text-sm font-medium rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"

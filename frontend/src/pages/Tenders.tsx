@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Filter, Search, FileText, ArrowDown, ArrowUp, Calendar, CheckCircle, Loader, X, Download, Copy, ArrowRight } from 'lucide-react';
 import { mockTenders } from '../data/mockData';
 import { formatDate, daysUntil } from '../utils/dateUtils';
+import { stripHtml } from '../utils/textUtils';
 
 type SortField = 'title' | 'publishDate' | 'deadline' | 'status';
 type SortDirection = 'asc' | 'desc';
@@ -241,7 +242,7 @@ const Tenders: React.FC = () => {
                               {tender.title}
                             </Link>
                             <p className="text-neutral-500 text-sm mt-1 line-clamp-1">
-                              {tender.description}
+                              {stripHtml(tender.description)}
                             </p>
                           </div>
                         </div>

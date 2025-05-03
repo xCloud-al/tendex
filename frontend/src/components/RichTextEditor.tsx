@@ -270,11 +270,40 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
   }
 
   return (
-    <div className="border border-neutral-300 rounded-md overflow-hidden bg-white">
-      <MenuBar editor={editor} />
+    <div className="border border-neutral-200 rounded-lg overflow-hidden">
+      <div className="border-b border-neutral-200 bg-neutral-50 p-2 flex flex-wrap gap-1">
+        <button
+          onClick={() => editor.chain().focus().toggleBold().run()}
+          className={`p-1.5 rounded hover:bg-neutral-200 ${editor.isActive('bold') ? 'bg-neutral-200' : ''}`}
+          title="Bold"
+        >
+          <Bold className="h-4 w-4" />
+        </button>
+        <button
+          onClick={() => editor.chain().focus().toggleItalic().run()}
+          className={`p-1.5 rounded hover:bg-neutral-200 ${editor.isActive('italic') ? 'bg-neutral-200' : ''}`}
+          title="Italic"
+        >
+          <Italic className="h-4 w-4" />
+        </button>
+        <button
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          className={`p-1.5 rounded hover:bg-neutral-200 ${editor.isActive('bulletList') ? 'bg-neutral-200' : ''}`}
+          title="Bullet List"
+        >
+          <List className="h-4 w-4" />
+        </button>
+        <button
+          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          className={`p-1.5 rounded hover:bg-neutral-200 ${editor.isActive('heading', { level: 2 }) ? 'bg-neutral-200' : ''}`}
+          title="Heading 2"
+        >
+          <Heading2 className="h-4 w-4" />
+        </button>
+      </div>
       <EditorContent 
         editor={editor} 
-        className="prose prose-sm max-w-none prose-headings:font-semibold prose-headings:text-neutral-900 prose-p:text-neutral-700 prose-ul:text-neutral-700 prose-ol:text-neutral-700 prose-blockquote:text-neutral-600 prose-code:text-primary-600 prose-code:bg-primary-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm prose-p:text-base prose-p:font-medium prose-headings:text-lg prose-headings:font-semibold prose-headings:mt-4 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2"
+        className="prose prose-sm max-w-none p-4 min-h-[200px] focus:outline-none"
       />
     </div>
   );

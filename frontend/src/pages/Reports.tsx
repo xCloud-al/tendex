@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { mockTenders } from '../data/mockData';
 import { formatDate } from '../utils/dateUtils';
+import { Link } from 'react-router-dom';
 
 const Reports: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -119,12 +120,13 @@ const Reports: React.FC = () => {
                       <Download className="h-4 w-4 mr-1.5" />
                       Download
                     </button>
-                    <button 
+                    <Link 
+                      to={`/tenders/${tender.id}`}
                       className="inline-flex items-center px-3 py-1.5 border border-neutral-300 text-neutral-700 text-sm font-medium rounded-md hover:bg-neutral-50 transition-colors"
                     >
                       <ExternalLink className="h-4 w-4 mr-1.5" />
                       View
-                    </button>
+                    </Link>
                   </div>
                 </div>
                 

@@ -1,9 +1,10 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, FileText, CheckCircle, AlertTriangle, BarChart2, Users, ArrowRight } from 'lucide-react';
-import { mockTenders } from '../data/mockData';
+import { mockTenders, mockSubmissions } from '../data/mockData';
 import { ToastContext } from '../components/Layout';
-import { formatDate } from '../utils/dateUtils';
+import { formatDate, daysUntil } from '../utils/dateUtils';
+import { stripHtml } from '../utils/textUtils';
 
 const Dashboard: React.FC = () => {
   const { addToast } = useContext(ToastContext);
@@ -12,6 +13,9 @@ const Dashboard: React.FC = () => {
   const activeTenders = mockTenders.filter(t => t.status === 'active').length;
   const completedTenders = mockTenders.filter(t => t.status === 'completed').length;
   const pendingEvaluations = mockTenders.filter(t => t.status === 'evaluation').length;
+  
+  // Count unique vendors who have submitted
+  const uniqueVendors = new Set(mockSubmissions.map(sub => sub.vendor.id)).size;
   
   // Get recent tenders
   const recentTenders = [...mockTenders]
@@ -75,10 +79,10 @@ const Dashboard: React.FC = () => {
             <div className="bg-secondary-100 p-3 rounded-full">
               <Users className="h-6 w-6 text-secondary-700" />
             </div>
-            <span className="text-3xl font-bold text-secondary-700">28</span>
+            <span className="text-3xl font-bold text-secondary-700">{uniqueVendors}</span>
           </div>
           <h3 className="text-lg font-semibold text-neutral-800">Active Vendors</h3>
-          <p className="text-neutral-500 text-sm mt-1">Registered procurement partners</p>
+          <p className="text-neutral-500 text-sm mt-1">Vendors who have submitted proposals</p>
         </div>
       </div>
       
@@ -130,7 +134,7 @@ const Dashboard: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-neutral-600 text-sm mb-3 line-clamp-2">
-                  {tender.description}
+                  {stripHtml(tender.description)}
                 </p>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-neutral-500">

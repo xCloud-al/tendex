@@ -55,7 +55,35 @@ export const mockTenders: Tender[] = [
   {
     id: 't1',
     title: 'Digital Education Platform Development',
-    description: 'Development of a comprehensive digital learning platform for the Center for School Leadership, supporting teacher training and professional development.',
+    description: `<h2>Project Overview</h2>
+<p>The Center for School Leadership is seeking proposals for the development of a comprehensive digital learning platform that will revolutionize teacher training and professional development in Albania.</p>
+
+<h2>Key Objectives</h2>
+<ul>
+  <li>Create an intuitive, user-friendly platform for teacher training</li>
+  <li>Implement robust assessment and progress tracking systems</li>
+  <li>Develop interactive learning modules and resources</li>
+  <li>Ensure seamless integration with existing educational systems</li>
+</ul>
+
+<h2>Technical Requirements</h2>
+<p>The platform must be built using modern web technologies and should support:</p>
+<ul>
+  <li>Scalable cloud infrastructure</li>
+  <li>Real-time collaboration features</li>
+  <li>Mobile responsiveness</li>
+  <li>Advanced analytics and reporting</li>
+</ul>
+
+<h2>Timeline and Milestones</h2>
+<p>The project is expected to be completed within 6 months, with the following key milestones:</p>
+<ul>
+  <li>Month 1: Requirements gathering and system design</li>
+  <li>Month 2-3: Core platform development</li>
+  <li>Month 4: Testing and quality assurance</li>
+  <li>Month 5: User acceptance testing</li>
+  <li>Month 6: Deployment and training</li>
+</ul>`,
     publishDate: '2024-03-01',
     deadline: '2024-04-15',
     status: 'active',
@@ -76,7 +104,33 @@ export const mockTenders: Tender[] = [
   {
     id: 't2',
     title: 'Startup Ecosystem Development Program',
-    description: 'Implementation of the Plug and Play Accelerator Program to support and scale innovative startups in Albania.',
+    description: `<h2>Program Overview</h2>
+<p>The Plug and Play Accelerator Program aims to catalyze innovation and entrepreneurship in Albania by providing comprehensive support to promising startups.</p>
+
+<h2>Program Components</h2>
+<ul>
+  <li>12-week intensive acceleration program</li>
+  <li>Mentorship from industry experts</li>
+  <li>Access to international investor network</li>
+  <li>Co-working space and technical resources</li>
+</ul>
+
+<h2>Target Sectors</h2>
+<p>We are particularly interested in startups focusing on:</p>
+<ul>
+  <li>FinTech and Digital Payments</li>
+  <li>AgriTech and Food Innovation</li>
+  <li>Tourism Technology</li>
+  <li>Clean Energy Solutions</li>
+</ul>
+
+<h2>Expected Outcomes</h2>
+<ul>
+  <li>At least 20 startups accelerated per year</li>
+  <li>Minimum 30% of startups securing follow-on funding</li>
+  <li>Creation of 100+ new jobs</li>
+  <li>Development of sustainable business models</li>
+</ul>`,
     publishDate: '2024-02-15',
     deadline: '2024-03-30',
     status: 'evaluation',
@@ -96,7 +150,34 @@ export const mockTenders: Tender[] = [
   {
     id: 't3',
     title: 'Cultural Heritage Digital Archive',
-    description: "Development of a digital preservation system for Albanian cultural heritage, including documentation of Tropoja's Dance and other intangible cultural heritage.",
+    description: `<h2>Project Scope</h2>
+<p>This initiative aims to create a comprehensive digital archive of Albania's rich cultural heritage, with a special focus on documenting and preserving the unique dance traditions of Tropoja.</p>
+
+<h2>Documentation Areas</h2>
+<ul>
+  <li>Traditional dance forms and choreography</li>
+  <li>Oral histories and cultural narratives</li>
+  <li>Traditional costumes and artifacts</li>
+  <li>Musical traditions and instruments</li>
+</ul>
+
+<h2>Technical Requirements</h2>
+<p>The digital archive system should include:</p>
+<ul>
+  <li>High-resolution video and audio recording capabilities</li>
+  <li>3D scanning and modeling of physical artifacts</li>
+  <li>Multilingual metadata management</li>
+  <li>Advanced search and retrieval systems</li>
+</ul>
+
+<h2>Preservation Standards</h2>
+<p>The project will adhere to international standards for cultural heritage preservation:</p>
+<ul>
+  <li>UNESCO documentation guidelines</li>
+  <li>International Council on Archives standards</li>
+  <li>Digital preservation best practices</li>
+  <li>Open access principles</li>
+</ul>`,
     publishDate: '2024-01-10',
     deadline: '2024-02-28',
     status: 'completed',
@@ -116,7 +197,33 @@ export const mockTenders: Tender[] = [
   {
     id: 't4',
     title: 'Eco-Tourism Development in Drilon',
-    description: 'Development of sustainable tourism infrastructure and visitor management system for Drilon Tushemisht Natural Park.',
+    description: `<h2>Project Overview</h2>
+<p>The Drilon Tushemisht Natural Park development project aims to create a sustainable tourism destination while preserving the area's natural beauty and biodiversity.</p>
+
+<h2>Development Components</h2>
+<ul>
+  <li>Eco-friendly visitor center</li>
+  <li>Nature trails and observation points</li>
+  <li>Sustainable accommodation facilities</li>
+  <li>Environmental education center</li>
+</ul>
+
+<h2>Sustainability Goals</h2>
+<p>The project will implement:</p>
+<ul>
+  <li>Renewable energy systems</li>
+  <li>Waste management solutions</li>
+  <li>Water conservation measures</li>
+  <li>Local community engagement programs</li>
+</ul>
+
+<h2>Expected Impact</h2>
+<ul>
+  <li>Increased visitor numbers by 50%</li>
+  <li>Creation of 30+ local jobs</li>
+  <li>Enhanced environmental protection</li>
+  <li>Improved visitor experience</li>
+</ul>`,
     publishDate: '2024-03-15',
     deadline: '2024-05-01',
     status: 'active',
@@ -137,7 +244,33 @@ export const mockTenders: Tender[] = [
   {
     id: 't5',
     title: '42 Tirana Coding Academy Support',
-    description: 'Technical support and infrastructure development for 42 Tirana coding academy, including learning management system and student tracking.',
+    description: `<h2>Project Overview</h2>
+<p>The 42 Tirana coding academy requires comprehensive technical support and infrastructure development to enhance its peer-to-peer learning environment.</p>
+
+<h2>System Requirements</h2>
+<ul>
+  <li>Advanced learning management system</li>
+  <li>Student progress tracking platform</li>
+  <li>Peer review and evaluation tools</li>
+  <li>Resource management system</li>
+</ul>
+
+<h2>Technical Features</h2>
+<p>The system should include:</p>
+<ul>
+  <li>Real-time collaboration tools</li>
+  <li>Automated assessment systems</li>
+  <li>Progress analytics and reporting</li>
+  <li>Integration with existing platforms</li>
+</ul>
+
+<h2>Implementation Timeline</h2>
+<ul>
+  <li>Phase 1: System design and architecture (1 month)</li>
+  <li>Phase 2: Core development (2 months)</li>
+  <li>Phase 3: Testing and deployment (1 month)</li>
+  <li>Phase 4: Training and support (1 month)</li>
+</ul>`,
     publishDate: '2024-02-01',
     deadline: '2024-03-15',
     status: 'evaluation',
