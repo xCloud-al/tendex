@@ -74,8 +74,8 @@ const Tenders: React.FC = () => {
           <p className="text-neutral-600">Manage procurement tenders and requests for proposals</p>
         </div>
         <Link
-          to="/create-tender"
-          className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-primary-600 text-white font-medium rounded-md hover:bg-primary-700 transition-colors"
+          to="/tenders/create"
+          className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-primary-50 text-primary-700 rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
         >
           <Plus className="h-5 w-5 mr-2" />
           Create Tender
@@ -97,72 +97,20 @@ const Tenders: React.FC = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center px-4 py-2 border border-neutral-300 text-neutral-700 font-medium rounded-md hover:bg-neutral-50"
-            >
-              <Filter className="h-5 w-5 mr-2" />
-              Filters
-            </button>
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setStatusFilter('all');
-                setSortField('publishDate');
-                setSortDirection('desc');
-              }}
-              className="inline-flex items-center px-4 py-2 border border-neutral-300 text-neutral-700 font-medium rounded-md hover:bg-neutral-50"
-            >
-              <X className="h-5 w-5 mr-2" />
-              Clear
-            </button>
-          </div>
-          
-          {showFilters && (
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-neutral-200 animate-slide-up">
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">Status</label>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="block w-full py-2 px-3 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-                >
-                  <option value="all">All Statuses</option>
-                  <option value="active">Active</option>
-                  <option value="evaluation">In Evaluation</option>
-                  <option value="completed">Completed</option>
-                  <option value="draft">Draft</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">Sort By</label>
-                <select
-                  value={`${sortField}-${sortDirection}`}
-                  onChange={(e) => {
-                    const [field, direction] = e.target.value.split('-');
-                    setSortField(field as SortField);
-                    setSortDirection(direction as SortDirection);
-                  }}
-                  className="block w-full py-2 px-3 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-                >
-                  <option value="publishDate-desc">Newest First</option>
-                  <option value="publishDate-asc">Oldest First</option>
-                  <option value="deadline-asc">Deadline (Soonest)</option>
-                  <option value="deadline-desc">Deadline (Latest)</option>
-                  <option value="title-asc">Title (A-Z)</option>
-                  <option value="title-desc">Title (Z-A)</option>
-                </select>
-              </div>
-              <div className="flex items-end">
-                <button
-                  onClick={() => setShowFilters(false)}
-                  className="w-full py-2 px-4 bg-primary-600 text-white font-medium rounded-md hover:bg-primary-700 transition-colors"
-                >
-                  Apply Filters
-                </button>
-              </div>
+            <div className="w-full sm:w-48">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="block w-full py-2 px-3 pr-8 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500 appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:1.5em_1.5em] bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236B7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')]"
+              >
+                <option value="all">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="evaluation">In Evaluation</option>
+                <option value="completed">Completed</option>
+                <option value="draft">Draft</option>
+              </select>
             </div>
-          )}
+          </div>
         </div>
         
         <div className="overflow-x-auto">

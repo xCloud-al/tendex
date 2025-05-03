@@ -87,7 +87,7 @@ const Layout: React.FC = () => {
           {toasts.map(toast => (
             <div 
               key={toast.id}
-              className={`${getToastClasses(toast.type)} p-4 rounded-lg shadow-md border-l-4 flex items-center min-w-[320px] animate-slide-up`}
+              className={`${getToastClasses(toast.type)} p-4 rounded-lg shadow-md border-l-4 flex items-center min-w-[320px] animate-slide-up backdrop-blur-xl bg-opacity-80`}
             >
               <div className="mr-3">
                 {getToastIcon(toast.type)}

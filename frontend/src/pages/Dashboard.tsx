@@ -94,8 +94,8 @@ const Dashboard: React.FC = () => {
           </div>
           <Link 
             to={`/tenders/${nearestDeadline.id}`}
-            className="ml-auto bg-white text-warning-700 px-3 py-1 rounded-md text-sm font-medium 
-                       border border-warning-300 hover:bg-warning-50 transition-colors"
+            className="ml-auto bg-warning-50 text-warning-700 px-3 py-1 rounded-md text-sm font-medium 
+                      border border-warning-200 hover:bg-warning-100 transition-colors"
           >
             View Tender
           </Link>
