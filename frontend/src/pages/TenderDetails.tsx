@@ -146,38 +146,8 @@ const TenderDetails: React.FC = () => {
               <h2 className="text-xl font-semibold mb-6">Tender Overview</h2>
               
               <div className="prose max-w-none">
-                <p className="text-neutral-700 mb-4">
-                  {tender.description}
-                </p>
-                
-                <h3 className="text-lg font-semibold mt-6 mb-3">Scope of Work</h3>
-                <p className="text-neutral-700 mb-4">
-                  This tender requires the selected vendor to provide {tender.title.toLowerCase()} 
-                  according to the specifications outlined in the tender documents. The work must be 
-                  completed within the specified timeframe and meet all quality standards.
-                </p>
-                
-                <h3 className="text-lg font-semibold mt-6 mb-3">Eligibility Criteria</h3>
-                <ul className="list-disc pl-5 mb-4 text-neutral-700">
-                  <li className="mb-2">Minimum 5 years of experience in providing similar services</li>
-                  <li className="mb-2">Valid business registration and tax compliance certificates</li>
-                  <li className="mb-2">Financial stability to undertake the project</li>
-                  <li className="mb-2">Technical capacity and qualified personnel</li>
-                  <li>Previous experience with similar organizations is a plus</li>
-                </ul>
-                
-                <h3 className="text-lg font-semibold mt-6 mb-3">Submission Guidelines</h3>
-                <p className="text-neutral-700 mb-4">
-                  Interested vendors must submit their proposals through the online portal before the deadline. 
-                  All submissions must include technical and financial proposals, company profile, and 
-                  relevant certifications.
-                </p>
-                
-                <h3 className="text-lg font-semibold mt-6 mb-3">Evaluation Process</h3>
                 <p className="text-neutral-700">
-                  Proposals will be evaluated based on technical competence (50%), financial proposal (30%), 
-                  and prior experience (20%). The evaluation committee will review all submissions and 
-                  shortlist qualified vendors for the next stage.
+                  {tender.description}
                 </p>
               </div>
             </div>

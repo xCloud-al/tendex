@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Filter, Search, FileText, ArrowDown, ArrowUp, Calendar, CheckCircle, Loader, X, Download, Copy, ArrowRight } from 'lucide-react';
 import { mockTenders } from '../data/mockData';
 import { formatDate, daysUntil } from '../utils/dateUtils';
@@ -7,12 +7,15 @@ import { formatDate, daysUntil } from '../utils/dateUtils';
 type SortField = 'title' | 'publishDate' | 'deadline' | 'status';
 type SortDirection = 'asc' | 'desc';
 
+const ITEMS_PER_PAGE = 10;
+
 const Tenders: React.FC = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortField, setSortField] = useState<SortField>('publishDate');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-  const [showFilters, setShowFilters] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -50,6 +53,16 @@ const Tenders: React.FC = () => {
       }
       return 0;
     });
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredTenders.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentTenders = filteredTenders.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
   
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
@@ -64,6 +77,27 @@ const Tenders: React.FC = () => {
       default:
         return 'bg-neutral-100 text-neutral-700';
     }
+  };
+
+  const handleClone = (tender: any) => {
+    navigate('/tenders/create', { 
+      state: { 
+        clonedTender: {
+          basicInfo: {
+            title: tender.title,
+            description: tender.description,
+            deadline: tender.deadline,
+            budget: tender.budget.toString()
+          },
+          criteria: {
+            documents: tender.documents
+          },
+          evaluation: {
+            documents: []
+          }
+        }
+      }
+    });
   };
 
   return (
@@ -179,7 +213,7 @@ const Tenders: React.FC = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-neutral-200">
-              {filteredTenders.length === 0 ? (
+              {currentTenders.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center">
                     <FileText className="h-12 w-12 text-neutral-300 mx-auto mb-4" />
@@ -188,7 +222,7 @@ const Tenders: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                filteredTenders.map((tender) => {
+                currentTenders.map((tender) => {
                   const daysLeft = daysUntil(tender.deadline);
                   const isUrgent = daysLeft !== null && daysLeft < 3 && tender.status === 'active';
                   
@@ -201,7 +235,7 @@ const Tenders: React.FC = () => {
                           </div>
                           <div>
                             <Link 
-                              to={`/tenders/${tender.id}`} 
+                              to={`/tenders/${tender.id}`}
                               className="text-primary-600 hover:text-primary-800 font-medium"
                             >
                               {tender.title}
@@ -236,10 +270,11 @@ const Tenders: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end space-x-2">
-                          <button className="text-neutral-500 hover:text-neutral-700" title="Download">
-                            <Download className="h-5 w-5" />
-                          </button>
-                          <button className="text-neutral-500 hover:text-neutral-700" title="Duplicate">
+                          <button 
+                            onClick={() => handleClone(tender)}
+                            className="text-neutral-500 hover:text-neutral-700" 
+                            title="Clone Tender"
+                          >
                             <Copy className="h-5 w-5" />
                           </button>
                           <Link 
@@ -262,13 +297,29 @@ const Tenders: React.FC = () => {
         <div className="px-6 py-4 border-t border-neutral-200 bg-neutral-50">
           <div className="flex justify-between items-center">
             <div className="text-sm text-neutral-500">
-              Showing <span className="font-medium">{filteredTenders.length}</span> of <span className="font-medium">{mockTenders.length}</span> tenders
+              Showing <span className="font-medium">{startIndex + 1}</span> to <span className="font-medium">{Math.min(endIndex, filteredTenders.length)}</span> of <span className="font-medium">{filteredTenders.length}</span> tenders
             </div>
             <div className="flex space-x-2">
-              <button disabled className="px-3 py-1 border border-neutral-300 rounded bg-white text-neutral-400 cursor-not-allowed">
+              <button 
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 border border-neutral-300 rounded ${
+                  currentPage === 1 
+                    ? 'bg-white text-neutral-400 cursor-not-allowed' 
+                    : 'bg-white text-neutral-700 hover:bg-neutral-50'
+                }`}
+              >
                 Previous
               </button>
-              <button className="px-3 py-1 border border-neutral-300 rounded bg-white text-neutral-700 hover:bg-neutral-50">
+              <button 
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1 border border-neutral-300 rounded ${
+                  currentPage === totalPages 
+                    ? 'bg-white text-neutral-400 cursor-not-allowed' 
+                    : 'bg-white text-neutral-700 hover:bg-neutral-50'
+                }`}
+              >
                 Next
               </button>
             </div>

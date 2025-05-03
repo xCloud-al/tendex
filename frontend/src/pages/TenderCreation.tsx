@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowRight, ArrowLeft, Upload } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import RichTextEditor from '../components/RichTextEditor';
 
 interface TenderFormData {
@@ -18,6 +19,8 @@ interface TenderFormData {
 }
 
 const TenderCreation = () => {
+  const location = useLocation();
+  const clonedTender = location.state?.clonedTender;
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<TenderFormData>({
     basicInfo: {
@@ -33,6 +36,12 @@ const TenderCreation = () => {
       documents: [],
     },
   });
+
+  useEffect(() => {
+    if (clonedTender) {
+      setFormData(clonedTender);
+    }
+  }, [clonedTender]);
 
   const handleBasicInfoChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -84,8 +93,14 @@ const TenderCreation = () => {
     <div className="animate-fade-in">
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold heading-underline mb-2">Create Tender</h1>
-          <p className="text-neutral-600">Create a new tender and manage its lifecycle</p>
+          <h1 className="text-3xl font-bold heading-underline mb-2">
+            {clonedTender ? 'Clone Tender' : 'Create Tender'}
+          </h1>
+          <p className="text-neutral-600">
+            {clonedTender 
+              ? 'Review and modify the cloned tender details below.'
+              : 'Create a new tender and manage its lifecycle'}
+          </p>
         </div>
       </div>
       <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-5 mb-8">
