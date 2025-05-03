@@ -8,6 +8,7 @@ import {
   Image as ImageIcon, Heading1, Heading2, Quote, 
   AlignLeft, AlignCenter, AlignRight, Code, Undo, Redo
 } from 'lucide-react';
+import { useEffect } from 'react';
 
 interface RichTextEditorProps {
   value: string;
@@ -251,60 +252,25 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
       }),
       Placeholder.configure({
         placeholder,
-        emptyEditorClass: 'before:content-[attr(data-placeholder)] before:text-neutral-400 before:float-left before:pointer-events-none',
       }),
     ],
     content: value,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
-    editorProps: {
-      attributes: {
-        class: 'prose prose-sm focus:outline-none max-w-none min-h-[200px] p-4 text-base font-medium',
-      },
-    },
   });
 
-  if (!editor) {
-    return null;
-  }
+  // Update editor content when value prop changes
+  useEffect(() => {
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value);
+    }
+  }, [value, editor]);
 
   return (
-    <div className="border border-neutral-200 rounded-lg overflow-hidden">
-      <div className="border-b border-neutral-200 bg-neutral-50 p-2 flex flex-wrap gap-1">
-        <button
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          className={`p-1.5 rounded hover:bg-neutral-200 ${editor.isActive('bold') ? 'bg-neutral-200' : ''}`}
-          title="Bold"
-        >
-          <Bold className="h-4 w-4" />
-        </button>
-        <button
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={`p-1.5 rounded hover:bg-neutral-200 ${editor.isActive('italic') ? 'bg-neutral-200' : ''}`}
-          title="Italic"
-        >
-          <Italic className="h-4 w-4" />
-        </button>
-        <button
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={`p-1.5 rounded hover:bg-neutral-200 ${editor.isActive('bulletList') ? 'bg-neutral-200' : ''}`}
-          title="Bullet List"
-        >
-          <List className="h-4 w-4" />
-        </button>
-        <button
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={`p-1.5 rounded hover:bg-neutral-200 ${editor.isActive('heading', { level: 2 }) ? 'bg-neutral-200' : ''}`}
-          title="Heading 2"
-        >
-          <Heading2 className="h-4 w-4" />
-        </button>
-      </div>
-      <EditorContent 
-        editor={editor} 
-        className="prose prose-sm max-w-none p-4 min-h-[200px] focus:outline-none"
-      />
+    <div className="border border-neutral-300 rounded-md overflow-hidden">
+      <MenuBar editor={editor} />
+      <EditorContent editor={editor} className="prose max-w-none p-4 min-h-[200px]" />
     </div>
   );
 };
