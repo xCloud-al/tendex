@@ -21,8 +21,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
     { path: '/tenders', label: 'Tenders', icon: <FileText className="h-5 w-5" /> },
     // { path: '/evaluation', label: 'Evaluation', icon: <FileCheck className="h-5 w-5" /> },
     { path: '/reports', label: 'Reports', icon: <BarChart className="h-5 w-5" /> },
-    { path: '/vendors', label: 'Vendors', icon: <Users className="h-5 w-5" /> },
-    { path: '/submissions', label: 'Submissions', icon: <Send className="h-5 w-5" /> },
+    // { path: '/vendors', label: 'Vendors', icon: <Users className="h-5 w-5" /> },
+    // { path: '/submissions', label: 'Submissions', icon: <Send className="h-5 w-5" /> },
     // { path: '/awards', label: 'Awards', icon: <Award className="h-5 w-5" /> },
     { path: '/settings', label: 'Settings', icon: <Settings className="h-5 w-5" /> },
   ];

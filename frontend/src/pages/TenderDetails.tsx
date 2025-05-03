@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   FileText, Calendar, Clock, Users, Download, Edit, Trash2, 
-  CheckCircle, AlertTriangle, ExternalLink, FileCheck, BarChart, Share2
+  CheckCircle, AlertTriangle, ExternalLink, FileCheck, BarChart, Share2, Pencil
 } from 'lucide-react';
 import { mockTenders, mockSubmissions } from '../data/mockData';
 import { formatDate, daysUntil } from '../utils/dateUtils';
 
 const TenderDetails: React.FC = () => {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState('overview');
   
@@ -48,6 +49,10 @@ const TenderDetails: React.FC = () => {
     if (isCompleted) return <CheckCircle className="h-5 w-5 mr-2" />;
     if (isEvaluation) return <FileCheck className="h-5 w-5 mr-2" />;
     return <AlertTriangle className="h-5 w-5 mr-2" />;
+  };
+  
+  const handleEdit = () => {
+    navigate(`/tenders/${id}/edit`);
   };
   
   const renderTabContent = () => {
@@ -508,8 +513,11 @@ const TenderDetails: React.FC = () => {
             <Share2 className="h-5 w-5 mr-1.5" />
             Share
           </button>
-          <button className="inline-flex items-center px-3 py-2 border border-neutral-300 text-neutral-700 font-medium rounded hover:bg-neutral-50">
-            <Edit className="h-5 w-5 mr-1.5" />
+          <button
+            onClick={handleEdit}
+            className="inline-flex items-center px-3 py-2 border border-primary-300 text-primary-700 font-medium rounded hover:bg-primary-50"
+          >
+            <Pencil className="h-5 w-5 mr-1.5" />
             Edit
           </button>
           <button className="inline-flex items-center px-3 py-2 border border-error-300 text-error-700 font-medium rounded hover:bg-error-50">

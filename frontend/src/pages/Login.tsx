@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, LogIn } from 'lucide-react';
 import Logo from '../components/Logo';
+
 interface LocationState {
   from?: {
     pathname: string;
@@ -52,9 +53,9 @@ const Login: React.FC = () => {
           <h2 className="mt-4 text-3xl font-extrabold text-neutral-900 font-['Playfair_Display']">
             AADF Procurement
           </h2>
-          {/* <p className="mt-2 text-sm text-neutral-600">
+          <p className="mt-2 text-sm text-neutral-600">
             Sign in to access the procurement management platform
-          </p> */}
+          </p>
         </div>
         
         {error && (
@@ -145,10 +146,16 @@ const Login: React.FC = () => {
           </div>
         </form>
         
-        {/* <div className="text-center text-sm text-neutral-500 mt-4">
-          <p>For demo purposes, use:</p>
-          <p>Email: admin@aadf.org | Password: password</p>
-        </div> */}
+        <div className="text-center text-sm text-neutral-500 mt-4">
+          <p>Or{' '}
+            <button
+              onClick={() => navigate('/tenders')}
+              className="font-medium text-primary-600 hover:text-primary-500"
+            >
+              view available tenders
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );

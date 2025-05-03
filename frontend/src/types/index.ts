@@ -7,6 +7,7 @@ export interface User {
 }
 
 export interface Tender {
+  budget: string;
   id: string;
   title: string;
   description: string;

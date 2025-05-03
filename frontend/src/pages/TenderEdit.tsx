@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowRight, ArrowLeft, Upload } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { mockTenders } from '../data/mockData';
 import RichTextEditor from '../components/RichTextEditor';
 
 interface TenderFormData {
@@ -17,7 +19,20 @@ interface TenderFormData {
   };
 }
 
-const TenderCreation = () => {
+interface TenderEditProps {
+  initialData?: {
+    id: string;
+    title: string;
+    description: string;
+    deadline: string;
+    budget: string;
+    status: string;
+  };
+}
+
+const TenderEdit: React.FC<TenderEditProps> = ({ initialData }) => {
+  const navigate = useNavigate();
+  const { id } = useParams();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<TenderFormData>({
     basicInfo: {
@@ -33,6 +48,34 @@ const TenderCreation = () => {
       documents: [],
     },
   });
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData(prev => ({
+        ...prev,
+        basicInfo: {
+          title: initialData.title,
+          description: initialData.description,
+          deadline: initialData.deadline,
+          budget: initialData.budget,
+        }
+      }));
+    } else if (id) {
+      // If no initialData provided but we have an ID, fetch from mock data
+      const tender = mockTenders.find(t => t.id === id);
+      if (tender) {
+        setFormData(prev => ({
+          ...prev,
+          basicInfo: {
+            title: tender.title,
+            description: tender.description,
+            deadline: tender.deadline,
+            budget: tender.budget || '',
+          }
+        }));
+      }
+    }
+  }, [initialData, id]);
 
   const handleBasicInfoChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -77,15 +120,16 @@ const TenderCreation = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Implement form submission
-    console.log(formData);
+    console.log('Updated tender data:', formData);
+    navigate(`/tenders/${id}`);
   };
 
   return (
     <div className="animate-fade-in">
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold heading-underline mb-2">Create Tender</h1>
-          <p className="text-neutral-600">Create a new tender and manage its lifecycle</p>
+          <h1 className="text-3xl font-bold heading-underline mb-2">Edit Tender</h1>
+          <p className="text-neutral-600">Update tender information and documents</p>
         </div>
       </div>
       <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-5 mb-8">
@@ -268,7 +312,7 @@ const TenderCreation = () => {
                 type="submit"
                 className="inline-flex items-center px-4 py-2 bg-primary-50 text-primary-700 rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
               >
-                Submit Tender
+                Update Tender
               </button>
             )}
           </div>
@@ -278,4 +322,4 @@ const TenderCreation = () => {
   );
 };
 
-export default TenderCreation; 
+export default TenderEdit; 
