@@ -132,7 +132,7 @@ const PublicTenders = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
                     <button
-                      onClick={() => navigate(`/tender/${tender.id}`)}
+                      onClick={() => navigate(`/vendors/tender/${tender.id}`)}
                       className="text-primary-600 hover:text-primary-900"
                     >
                       View Details

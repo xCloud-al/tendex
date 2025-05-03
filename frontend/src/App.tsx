@@ -25,10 +25,19 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Public Routes */}
-          <Route path="/tenders" element={<PublicTenders />} />
-          <Route path="/tender/:id" element={<PublicTenderDetails />} />
-          <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />} />
+          {/* Public Routes - Only accessible when not logged in */}
+          <Route 
+            path="/vendors/tenders" 
+            element={!isAuthenticated ? <PublicTenders /> : <Navigate to="/dashboard" />} 
+          />
+          <Route 
+            path="/vendors/tender/:id" 
+            element={!isAuthenticated ? <PublicTenderDetails /> : <Navigate to="/dashboard" />} 
+          />
+          <Route 
+            path="/login" 
+            element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />} 
+          />
           <Route 
             path="/vendor-registration" 
             element={!isAuthenticated ? <VendorRegistration /> : <Navigate to="/dashboard" />} 

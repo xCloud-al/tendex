@@ -149,7 +149,7 @@ const Login: React.FC = () => {
         <div className="text-center text-sm text-neutral-500 mt-4">
           <p>Or{' '}
             <button
-              onClick={() => navigate('/tenders')}
+              onClick={() => navigate('/vendors/tenders')}
               className="font-medium text-primary-600 hover:text-primary-500"
             >
               view available tenders
