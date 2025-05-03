@@ -16,6 +16,7 @@ import PublicTenderDetails from './pages/PublicTenderDetails';
 import VendorRegistration from './pages/VendorRegistration';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import SubmissionEvaluation from './pages/SubmissionEvaluation';
 import './App.css';
 
 function App() {
@@ -70,6 +71,7 @@ function App() {
             <Route path="evaluation/:id" element={<Evaluation />} />
             <Route path="reports" element={<Reports />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="tenders/:tenderId/submissions/:submissionId/evaluate" element={<SubmissionEvaluation />} />
           </Route>
         </Routes>
       </Router>

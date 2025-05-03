@@ -4,80 +4,87 @@ import { Tender, Submission } from '../types/index';
 export const mockTenders: Tender[] = [
   {
     id: '1',
-    title: 'IT Equipment Supply',
-    description: 'Supply of computers, laptops, and peripherals for the AADF office. This tender requires delivery and installation of high-quality equipment that meets specified technical requirements.',
-    publishDate: '2025-05-01',
-    deadline: '2025-05-20',
+    title: 'Supply of Office Equipment',
+    description: 'This tender is for the supply of office equipment including desks, chairs, and storage solutions.',
+    publishDate: '2025-01-15',
+    deadline: '2025-04-15',
     status: 'active',
-    category: 'goods',
-    submissionCount: 0,
-    documents: []
+    category: 'Equipment',
+    submissionCount: 5,
+    documents: [],
+    budget: '$50,000'
   },
   {
     id: '2',
-    title: 'Financial Audit Services',
-    description: 'Professional financial audit services for the fiscal year 2025. The selected vendor will conduct a comprehensive audit of our financial statements in accordance with international standards.',
-    publishDate: '2025-04-15',
-    deadline: '2025-05-15',
+    title: 'IT Infrastructure Upgrade',
+    description: 'Upgrade of existing IT infrastructure including servers, networking equipment, and security systems.',
+    publishDate: '2025-01-20',
+    deadline: '2025-04-20',
     status: 'active',
-    category: 'services',
+    category: 'IT',
     submissionCount: 3,
-    documents: []
+    documents: [],
+    budget: '$100,000'
   },
   {
     id: '3',
-    title: 'Office Renovation',
-    description: 'Renovation of AADF headquarters including interior design, furnishing, and electrical work. This project requires expertise in commercial space design with attention to sustainability and functionality.',
-    publishDate: '2025-03-20',
-    deadline: '2025-04-10',
+    title: 'Cleaning Services',
+    description: 'Provision of cleaning services for office premises on a contract basis.',
+    publishDate: '2025-01-25',
+    deadline: '2025-04-25',
     status: 'evaluation',
-    category: 'works',
-    submissionCount: 5,
-    documents: []
+    category: 'Services',
+    submissionCount: 8,
+    documents: [],
+    budget: '$30,000'
   },
   {
     id: '4',
-    title: 'Strategic Communication Consulting',
-    description: 'Consulting services for developing and implementing a strategic communication plan. The selected vendor will help enhance our public presence and stakeholder engagement strategies.',
-    publishDate: '2025-03-05',
-    deadline: '2025-03-25',
+    title: 'Security Services',
+    description: 'Provision of security services including guards and surveillance systems.',
+    publishDate: '2025-02-01',
+    deadline: '2025-05-01',
     status: 'completed',
-    category: 'consulting',
-    submissionCount: 4,
-    documents: []
+    category: 'Security',
+    submissionCount: 6,
+    documents: [],
+    budget: '$75,000'
   },
   {
     id: '5',
-    title: 'Translation Services',
-    description: 'Professional translation services for documents, reports, and publications in multiple languages. The service provider must ensure high-quality translations with expertise in technical and legal terminology.',
-    publishDate: '2025-02-20',
-    deadline: '2025-03-10',
+    title: 'Catering Services',
+    description: 'Provision of catering services for corporate events and meetings.',
+    publishDate: '2025-02-05',
+    deadline: '2025-05-05',
     status: 'completed',
-    category: 'services',
-    submissionCount: 6,
-    documents: []
+    category: 'Services',
+    submissionCount: 4,
+    documents: [],
+    budget: '$40,000'
   },
   {
     id: '6',
-    title: 'Event Management Services',
-    description: 'Comprehensive event management services for annual conference and networking events. The provider will handle logistics, venue setup, catering, and audiovisual requirements for our events.',
-    publishDate: '2025-04-25',
-    deadline: '2025-05-25',
+    title: 'Software Development',
+    description: 'Development of custom software solutions for business processes.',
+    publishDate: '2025-02-10',
+    deadline: '2025-05-10',
     status: 'active',
-    category: 'services',
-    submissionCount: 2,
-    documents: []
+    category: 'IT',
+    submissionCount: 7,
+    documents: [],
+    budget: '$150,000'
   },
   {
     id: '7',
-    title: 'Software Development',
-    description: 'Development of a custom grants management system with reporting capabilities. The solution should include user-friendly interfaces for both applicants and administrators with robust reporting features.',
-    publishDate: '2025-02-10',
-    deadline: '2025-03-01',
+    title: 'Furniture Supply',
+    description: 'Supply of office furniture including workstations and meeting room furniture.',
+    publishDate: '2025-02-15',
+    deadline: '2025-05-15',
     status: 'completed',
-    category: 'services',
-    submissionCount: 8,
-    documents: []
+    category: 'Equipment',
+    submissionCount: 5,
+    documents: [],
+    budget: '$80,000'
   }
 ];
 
@@ -85,52 +92,127 @@ export const mockTenders: Tender[] = [
 export const mockSubmissions: Submission[] = [
   {
     id: '1',
-    tenderId: '3',
+    tenderId: '1',
     vendor: {
-      name: 'AlphaTech Solutions',
-      email: 'contact@alphatech.com'
+      name: 'TechSolutions Inc.',
+      email: 'contact@techsolutions.com'
     },
-    submittedDate: '2025-04-05',
-    documentCount: 5
+    submittedDate: '2025-02-15',
+    documentCount: 5,
+    status: 'submitted',
+    aiCheck: {
+      isQualified: true,
+      reasons: [
+        'All required documents are present',
+        'Company has sufficient experience',
+        'Financial capability meets requirements'
+      ],
+      score: 85
+    }
   },
   {
     id: '2',
-    tenderId: '3',
+    tenderId: '1',
     vendor: {
-      name: 'Beta Builders Ltd',
-      email: 'info@betabuilders.com'
+      name: 'InnovateTech',
+      email: 'info@innovatetech.com'
     },
-    submittedDate: '2025-04-07',
-    documentCount: 4
+    submittedDate: '2025-02-16',
+    documentCount: 4,
+    status: 'submitted',
+    aiCheck: {
+      isQualified: false,
+      reasons: [
+        'Missing required certifications',
+        'Insufficient financial documentation'
+      ],
+      score: 45
+    }
   },
   {
     id: '3',
-    tenderId: '3',
+    tenderId: '2',
     vendor: {
-      name: 'Gamma Group',
-      email: 'proposals@gammagroup.com'
+      name: 'Global Services Ltd.',
+      email: 'contact@globalservices.com'
     },
-    submittedDate: '2025-04-08',
-    documentCount: 6
+    submittedDate: '2025-02-14',
+    documentCount: 6,
+    status: 'submitted',
+    aiCheck: {
+      isQualified: true,
+      reasons: [
+        'Complete documentation provided',
+        'Strong financial standing',
+        'Relevant experience in the field'
+      ],
+      score: 92
+    }
   },
   {
     id: '4',
-    tenderId: '4',
+    tenderId: '1',
     vendor: {
-      name: 'Delta Communications',
-      email: 'info@deltacomms.com'
+      name: 'Office Solutions Inc',
+      email: 'contact@officesolutions.com'
     },
-    submittedDate: '2025-03-20',
-    documentCount: 3
+    submittedDate: '2025-04-05',
+    documentCount: 5,
+    status: 'submitted'
   },
   {
     id: '5',
-    tenderId: '4',
+    tenderId: '1',
     vendor: {
-      name: 'Epsilon PR Agency',
-      email: 'contact@epsilonpr.com'
+      name: 'Tech Supplies Co',
+      email: 'info@techsupplies.com'
     },
-    submittedDate: '2025-03-22',
-    documentCount: 4
+    submittedDate: '2025-04-07',
+    documentCount: 4,
+    status: 'qualified'
+  },
+  {
+    id: '6',
+    tenderId: '1',
+    vendor: {
+      name: 'Global Equipment Ltd',
+      email: 'sales@globalequipment.com'
+    },
+    submittedDate: '2025-04-08',
+    documentCount: 6,
+    status: 'disqualified'
+  },
+  {
+    id: '7',
+    tenderId: '3',
+    vendor: {
+      name: 'CleanPro Services',
+      email: 'info@cleanpro.com'
+    },
+    submittedDate: '2025-04-20',
+    documentCount: 5,
+    status: 'submitted'
+  },
+  {
+    id: '8',
+    tenderId: '3',
+    vendor: {
+      name: 'Sparkle Solutions',
+      email: 'contact@sparkle.com'
+    },
+    submittedDate: '2025-04-21',
+    documentCount: 4,
+    status: 'submitted'
+  },
+  {
+    id: '9',
+    tenderId: '3',
+    vendor: {
+      name: 'EcoClean Services',
+      email: 'info@ecoclean.com'
+    },
+    submittedDate: '2025-04-22',
+    documentCount: 6,
+    status: 'submitted'
   }
 ];

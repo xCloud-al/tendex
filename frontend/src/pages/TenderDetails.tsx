@@ -11,9 +11,11 @@ const TenderDetails: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState('overview');
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+  const [submissions, setSubmissions] = useState(mockSubmissions.filter(s => s.tenderId === id));
+  const [hasRunAICheck, setHasRunAICheck] = useState(false);
   
   const tender = mockTenders.find(t => t.id === id);
-  const submissions = mockSubmissions.filter(s => s.tenderId === id);
   
   if (!tender) {
     return (
@@ -37,11 +39,91 @@ const TenderDetails: React.FC = () => {
   const isCompleted = tender.status === 'completed';
   const isEvaluation = tender.status === 'evaluation';
   
-  const getStatusColor = () => {
-    if (isActive) return 'text-primary-700 bg-primary-50 border-primary-200';
-    if (isCompleted) return 'text-success-700 bg-success-50 border-success-200';
-    if (isEvaluation) return 'text-warning-700 bg-warning-50 border-warning-200';
-    return 'text-neutral-700 bg-neutral-50 border-neutral-200';
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+
+    const sortedSubmissions = [...submissions].sort((a, b) => {
+      if (key === 'vendor') {
+        return direction === 'asc' 
+          ? a.vendor.name.localeCompare(b.vendor.name)
+          : b.vendor.name.localeCompare(a.vendor.name);
+      }
+      if (key === 'submittedOn') {
+        return direction === 'asc'
+          ? new Date(a.submittedDate).getTime() - new Date(b.submittedDate).getTime()
+          : new Date(b.submittedDate).getTime() - new Date(a.submittedDate).getTime();
+      }
+      if (key === 'documents') {
+        return direction === 'asc'
+          ? a.documentCount - b.documentCount
+          : b.documentCount - a.documentCount;
+      }
+      if (key === 'status') {
+        return direction === 'asc'
+          ? a.status.localeCompare(b.status)
+          : b.status.localeCompare(a.status);
+      }
+      return 0;
+    });
+
+    setSubmissions(sortedSubmissions);
+  };
+
+  const handleAICheck = () => {
+    // Update submissions with AI check results
+    const updatedSubmissions = submissions.map(sub => {
+      const isQualified = Math.random() > 0.5;
+      const aiCheck = {
+        isQualified,
+        reasons: isQualified ? [
+          'All required documents are present',
+          'Company has sufficient experience',
+          'Financial capability meets requirements'
+        ] : [
+          'Missing required certifications',
+          'Insufficient financial documentation'
+        ],
+        score: Math.floor(Math.random() * 100)
+      };
+
+      // Update the submission in mockSubmissions
+      const submissionIndex = mockSubmissions.findIndex(s => s.id === sub.id);
+      if (submissionIndex !== -1) {
+        mockSubmissions[submissionIndex] = {
+          ...mockSubmissions[submissionIndex],
+          aiCheck,
+          status: isQualified ? 'qualified' as const : 'disqualified' as const
+        };
+      }
+
+      return {
+        ...sub,
+        aiCheck,
+        status: isQualified ? 'qualified' as const : 'disqualified' as const
+      };
+    });
+
+    setSubmissions(updatedSubmissions);
+    setHasRunAICheck(true);
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'submitted':
+        return 'bg-primary-100 text-primary-700';
+      case 'qualified':
+        return 'bg-warning-100 text-warning-700';
+      case 'disqualified':
+        return 'bg-error-100 text-error-700';
+      case 'accepted':
+        return 'bg-success-100 text-success-700';
+      default:
+        return 'bg-neutral-100 text-neutral-700';
+    }
   };
   
   const getStatusIcon = () => {
@@ -110,7 +192,7 @@ const TenderDetails: React.FC = () => {
                 <h2 className="text-xl font-semibold">Tender Documents</h2>
                 <Link 
                   to="#" 
-                  className="inline-flex items-center px-3 py-1.5 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 transition-colors"
+                  className="inline-flex items-center px-3 py-1.5 bg-primary-50 text-primary-700 text-sm font-medium rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
                 >
                   <Download className="h-4 w-4 mr-1.5" />
                   Download All
@@ -169,9 +251,25 @@ const TenderDetails: React.FC = () => {
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Vendor Submissions</h2>
-                <span className="text-neutral-500 text-sm">
-                  {submissions.length} submission{submissions.length !== 1 ? 's' : ''}
-                </span>
+                <div className="flex items-center space-x-4">
+                  <span className="text-neutral-500 text-sm">
+                    {submissions.length} submission{submissions.length !== 1 ? 's' : ''}
+                  </span>
+                  {!isActive && (
+                    <button
+                      onClick={handleAICheck}
+                      disabled={hasRunAICheck}
+                      className={`inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md border transition-colors
+                        ${hasRunAICheck 
+                          ? 'bg-neutral-50 text-neutral-400 border-neutral-200 cursor-not-allowed' 
+                          : 'bg-primary-50 text-primary-700 border-primary-200 hover:bg-primary-100'
+                        }`}
+                    >
+                      <FileCheck className="h-4 w-4 mr-1.5" />
+                      {hasRunAICheck ? 'AI Check Completed' : 'Run AI Criteria Check'}
+                    </button>
+                  )}
+                </div>
               </div>
               
               {isActive && (
@@ -186,7 +284,7 @@ const TenderDetails: React.FC = () => {
                       </h3>
                       <div className="mt-2 text-sm text-warning-700">
                         <p>
-                          To ensure fairness, vendor submissions cannot be viewed until the tender 
+                          To ensure fairness, vendor submissions cannot be viewed or evaluated until the tender 
                           deadline has passed. Check back after {formatDate(tender.deadline)}.
                         </p>
                       </div>
@@ -208,17 +306,57 @@ const TenderDetails: React.FC = () => {
                   <table className="min-w-full divide-y divide-neutral-200">
                     <thead>
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                          Vendor
+                        <th 
+                          className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
+                          onClick={() => handleSort('vendor')}
+                        >
+                          <div className="flex items-center">
+                            Vendor
+                            {sortConfig?.key === 'vendor' && (
+                              <span className="ml-1">
+                                {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                              </span>
+                            )}
+                          </div>
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                          Submitted On
+                        <th 
+                          className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
+                          onClick={() => handleSort('submittedOn')}
+                        >
+                          <div className="flex items-center">
+                            Submitted On
+                            {sortConfig?.key === 'submittedOn' && (
+                              <span className="ml-1">
+                                {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                              </span>
+                            )}
+                          </div>
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                          Documents
+                        <th 
+                          className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
+                          onClick={() => handleSort('documents')}
+                        >
+                          <div className="flex items-center">
+                            Documents
+                            {sortConfig?.key === 'documents' && (
+                              <span className="ml-1">
+                                {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                              </span>
+                            )}
+                          </div>
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                          Status
+                        <th 
+                          className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
+                          onClick={() => handleSort('status')}
+                        >
+                          <div className="flex items-center">
+                            Status
+                            {sortConfig?.key === 'status' && (
+                              <span className="ml-1">
+                                {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                              </span>
+                            )}
+                          </div>
                         </th>
                         <th className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
                           Actions
@@ -248,19 +386,17 @@ const TenderDetails: React.FC = () => {
                             {sub.documentCount} documents
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-700">
-                              Submitted
+                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(sub.status)}`}>
+                              {sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div className="flex justify-end space-x-2">
-                              <button className="text-primary-600 hover:text-primary-800">
-                                <Download className="h-5 w-5" />
-                              </button>
-                              <button className="text-primary-600 hover:text-primary-800">
-                                <FileCheck className="h-5 w-5" />
-                              </button>
-                            </div>
+                            <button
+                              onClick={() => navigate(`/tenders/${tender.id}/submissions/${sub.id}/evaluate`)}
+                              className="inline-flex items-center px-3 py-1.5 bg-primary-50 text-primary-700 text-sm font-medium rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
+                            >
+                              Evaluate
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -281,7 +417,7 @@ const TenderDetails: React.FC = () => {
                 {isEvaluation && (
                   <Link 
                     to={`/evaluation/${id}`} 
-                    className="inline-flex items-center px-3 py-1.5 bg-warning-600 text-white text-sm font-medium rounded-md hover:bg-warning-700 transition-colors"
+                    className="inline-flex items-center px-3 py-1.5 bg-warning-50 text-warning-700 text-sm font-medium rounded-md border border-warning-200 hover:bg-warning-100 transition-colors"
                   >
                     <FileCheck className="h-4 w-4 mr-1.5" />
                     Continue Evaluation
@@ -290,7 +426,7 @@ const TenderDetails: React.FC = () => {
                 {isCompleted && (
                   <Link 
                     to={`/reports/${id}`}
-                    className="inline-flex items-center px-3 py-1.5 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 transition-colors"
+                    className="inline-flex items-center px-3 py-1.5 bg-primary-50 text-primary-700 text-sm font-medium rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
                   >
                     <BarChart className="h-4 w-4 mr-1.5" />
                     View Final Report
@@ -515,12 +651,12 @@ const TenderDetails: React.FC = () => {
           </button>
           <button
             onClick={handleEdit}
-            className="inline-flex items-center px-3 py-2 border border-primary-300 text-primary-700 font-medium rounded hover:bg-primary-50"
+            className="inline-flex items-center px-3 py-2 bg-primary-50 text-primary-700 rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
           >
             <Pencil className="h-5 w-5 mr-1.5" />
             Edit
           </button>
-          <button className="inline-flex items-center px-3 py-2 border border-error-300 text-error-700 font-medium rounded hover:bg-error-50">
+          <button className="inline-flex items-center px-3 py-2 bg-error-50 text-error-700 rounded-md border border-error-200 hover:bg-error-100 transition-colors">
             <Trash2 className="h-5 w-5 mr-1.5" />
             Delete
           </button>
@@ -529,7 +665,7 @@ const TenderDetails: React.FC = () => {
       
       {/* Status and Info Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className={`col-span-1 md:col-span-2 flex items-center p-4 border rounded-lg ${getStatusColor()}`}>
+        <div className={`col-span-1 md:col-span-2 flex items-center p-4 border rounded-lg ${getStatusColor(tender.status)}`}>
           {getStatusIcon()}
           <div>
             <h3 className="font-medium">
@@ -599,16 +735,18 @@ const TenderDetails: React.FC = () => {
           >
             Submissions {submissions.length > 0 && `(${submissions.length})`}
           </button>
-          <button
-            onClick={() => setActiveTab('evaluation')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap
-                      ${activeTab === 'evaluation' 
-                        ? 'border-primary-600 text-primary-600' 
-                        : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
-                      }`}
-          >
-            Evaluation
-          </button>
+          {!isActive && (
+            <button
+              onClick={() => setActiveTab('evaluation')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap
+                        ${activeTab === 'evaluation' 
+                          ? 'border-primary-600 text-primary-600' 
+                          : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
+                        }`}
+            >
+              Evaluation
+            </button>
+          )}
         </nav>
       </div>
       

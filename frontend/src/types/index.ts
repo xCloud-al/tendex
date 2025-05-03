@@ -7,16 +7,16 @@ export interface User {
 }
 
 export interface Tender {
-  budget: string;
   id: string;
   title: string;
   description: string;
   publishDate: string;
   deadline: string;
-  status: 'draft' | 'active' | 'evaluation' | 'completed';
+  status: 'active' | 'evaluation' | 'completed';
   category: string;
   submissionCount: number;
-  documents: Document[];
+  documents: any[];
+  budget: string;
 }
 
 export interface Document {
@@ -37,6 +37,12 @@ export interface Submission {
   };
   submittedDate: string;
   documentCount: number;
+  status: 'submitted' | 'qualified' | 'disqualified' | 'accepted';
+  aiCheck?: {
+    isQualified: boolean;
+    reasons: string[];
+    score: number;
+  };
 }
 
 export interface Evaluation {
