@@ -2,6 +2,20 @@ version: '3'
 name: tendex-prod
 
 services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.frontend.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.frontend.entrypoints=websecure
+      - traefik.http.routers.frontend.tls=true
+      - traefik.http.routers.frontend.tls.certresolver=letsencrypt
+    # env_file:
+    #   - "frontend/.env"
+    network_mode: bridge
+    restart: always
   database:
     image: postgres:15.2
     volumes:

@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
+import PublicLayout from './components/PublicLayout';
 import Dashboard from './pages/Dashboard';
 import Tenders from './pages/Tenders';
 import TenderDetails from './pages/TenderDetails';
@@ -26,36 +27,29 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Public Routes - Only accessible when not logged in */}
-          <Route 
-            path="/vendors/tenders" 
-            element={!isAuthenticated ? <PublicTenders /> : <Navigate to="/dashboard" />} 
-          />
-          <Route 
-            path="/vendors/tender/:id" 
-            element={!isAuthenticated ? <PublicTenderDetails /> : <Navigate to="/dashboard" />} 
-          />
+          {/* Public Routes */}
+          <Route element={<PublicLayout />}>
+            <Route 
+              path="/vendors/tenders" 
+              element={!isAuthenticated ? <PublicTenders /> : <Navigate to="/dashboard" />} 
+            />
+            <Route 
+              path="/vendors/tender/:id" 
+              element={!isAuthenticated ? <PublicTenderDetails /> : <Navigate to="/dashboard" />} 
+            />
+            <Route 
+              path="/vendor-registration" 
+              element={!isAuthenticated ? <VendorRegistration /> : <Navigate to="/dashboard" />} 
+            />
+          </Route>
+
+          {/* Login Route - No Layout */}
           <Route 
             path="/login" 
-            element={!isAuthenticated ? <Login /> : <Navigate to="/login" />} 
+            element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />} 
           />
-          <Route 
-            path="/vendor-registration" 
-            element={!isAuthenticated ? <VendorRegistration /> : <Navigate to="/dashboard" />} 
-          />
-          <Route 
-            path="/dashboard" 
-            element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} 
-          />
-          <Route 
-            path="/tender/create" 
-            element={isAuthenticated ? <TenderCreation /> : <Navigate to="/login" />} 
-          />
-          <Route 
-            path="/tender/edit/:id" 
-            element={isAuthenticated ? <TenderEdit /> : <Navigate to="/login" />} 
-          />
-          <Route path="/" element={<Navigate to="/dashboard" />} />
+
+          {/* Protected Routes */}
           <Route path="/" element={
             <ProtectedRoute>
               <Layout />

@@ -2,15 +2,32 @@ version: '3'
 name: tendex-localdev
 
 services:
-  database:
-    image: postgres:15.2
-    volumes:
-    - "./database/data:/var/lib/postgresql/data"
-    env_file:
-      - "database/.env"
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ./dev.Dockerfile
     ports:
-      - "5432:5432"
+      - "3000:3000"
+    volumes:
+    - "./frontend/:/app"
+    # env_file:
+    #   - "frontend/.env"
+    entrypoint: 
+    - "/bin/sh"
+    - "-c"
+    - "npm install && npm run dev"
     network_mode: bridge
     restart: always
+
+  # database:
+  #   image: postgres:15.2
+  #   volumes:
+  #   - "./database/data:/var/lib/postgresql/data"
+  #   env_file:
+  #     - "database/.env"
+  #   ports:
+  #     - "5432:5432"
+  #   network_mode: bridge
+  #   restart: always
 
 # docker compose -f docker-compose.localdev.yaml up -d --build
