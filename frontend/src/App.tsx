@@ -8,6 +8,9 @@ import TenderDetails from './pages/TenderDetails';
 import SubmitOffer from './pages/SubmitOffer';
 import Evaluation from './pages/Evaluation';
 import Reports from './pages/Reports';
+import Evaluators from './pages/Evaluators';
+import EvaluatorCreation from './pages/EvaluatorCreation';
+import EvaluatorDetails from './pages/EvaluatorDetails';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import TenderCreation from './pages/TenderCreation';
@@ -19,6 +22,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import SubmissionEvaluation from './pages/SubmissionEvaluation';
 import './App.css';
+import EvaluatorEdit from './pages/EvaluatorEdit';
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -64,6 +68,10 @@ function App() {
             <Route path="submit-offer/:id" element={<SubmitOffer />} />
             <Route path="evaluation/:id" element={<Evaluation />} />
             <Route path="reports" element={<Reports />} />
+            <Route path="evaluators" element={<Evaluators />} />
+            <Route path="evaluators/create" element={<EvaluatorCreation />} />
+            <Route path="evaluators/:id" element={<EvaluatorDetails />} />
+            <Route path="evaluators/:id/edit" element={<EvaluatorEdit />} />
             <Route path="settings" element={<Settings />} />
             <Route path="tenders/:tenderId/submissions/:submissionId/evaluate" element={<SubmissionEvaluation />} />
           </Route>
