@@ -9,7 +9,7 @@ interface LogoProps {
 const Logo: React.FC<LogoProps> = ({ width = 150, height = 50, className = '' }) => {
   return (
     <img
-      src="/src/assets/img/logo.svg"
+      src="/public/assets/img/logo.svg"
       alt="Company Logo"
       width={width}
       height={height}
