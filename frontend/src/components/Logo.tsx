@@ -1,4 +1,5 @@
 import React from 'react';
+import logo from '../assets/img/logo.svg';
 
 interface LogoProps {
   width?: number;
@@ -9,7 +10,7 @@ interface LogoProps {
 const Logo: React.FC<LogoProps> = ({ width = 150, height = 50, className = '' }) => {
   return (
     <img
-      src="/public/assets/img/logo.svg"
+      src={logo}
       alt="Company Logo"
       width={width}
       height={height}
