@@ -499,6 +499,7 @@ export interface ApiTenderTender extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    budget: Schema.Attribute.BigInteger;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -506,7 +507,7 @@ export interface ApiTenderTender extends Struct.CollectionTypeSchema {
       'images' | 'files' | 'videos' | 'audios'
     >;
     deadline: Schema.Attribute.DateTime;
-    description: Schema.Attribute.RichText & Schema.Attribute.Required;
+    description: Schema.Attribute.Text;
     documents: Schema.Attribute.Media<
       'images' | 'files' | 'videos' | 'audios',
       true

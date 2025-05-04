@@ -4,9 +4,11 @@ import {
   ArrowLeft, FileText, Download, CheckCircle, XCircle, 
   AlertTriangle, Edit2, FileCheck, BarChart, Upload, Pencil 
 } from 'lucide-react';
-import { mockTenders, mockSubmissions } from '../data/mockData';
 import { formatDate } from '../utils/dateUtils';
 import React from 'react';
+import { useGetOfferByIdQuery } from '../store/services/api';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 interface AICheckResult {
   isQualified: boolean;
@@ -24,17 +26,48 @@ const SubmissionEvaluation = () => {
   const [manualScore, setManualScore] = useState<number>(0);
   const [comments, setComments] = useState('');
 
-  const tender = mockTenders.find(t => t.id === tenderId);
-  const submission = mockSubmissions.find(s => s.id === submissionId);
+  const { data: offer, isLoading, error } = useGetOfferByIdQuery(submissionId!);
 
-  // Initialize AI result from submission data
+  // Initialize AI result from offer data
   React.useEffect(() => {
-    if (submission?.aiCheck) {
-      setAIResult(submission.aiCheck);
+    if (offer?.aiCheck) {
+      setAIResult(offer.aiCheck);
     }
-  }, [submission]);
+  }, [offer]);
 
-  if (!tender || !submission) {
+  const handleDownloadAll = async () => {
+    if (!offer) return;
+    
+    try {
+      const zip = new JSZip();
+      
+      // Add all documents
+      if (offer.documents && offer.documents.length > 0) {
+        for (const doc of offer.documents) {
+          const response = await fetch(`http://localhost:1337${doc.url}`);
+          const blob = await response.blob();
+          zip.file(doc.name, blob);
+        }
+      }
+      
+      // Generate and download the zip file
+      const content = await zip.generateAsync({ type: 'blob' });
+      saveAs(content, `${offer.vendor?.name}_documents.zip`);
+    } catch (error) {
+      console.error('Error downloading documents:', error);
+      // TODO: Add toast notification for error
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
+  if (error || !offer) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh]">
         <FileText className="h-16 w-16 text-neutral-300 mb-4" />
@@ -93,15 +126,13 @@ const SubmissionEvaluation = () => {
           <h1 className="text-3xl font-bold mb-2">Submission Evaluation</h1>
         </div>
         <div className="flex space-x-2 mt-4 sm:mt-0">
-          {new Date(tender.deadline) > new Date() && (
-            <button 
-              onClick={() => navigate(`/tenders/${tenderId}/edit`)}
-              className="inline-flex items-center px-3 py-2 bg-primary-50 text-primary-700 rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
-            >
-              <Pencil className="h-5 w-5 mr-1.5" />
-              Edit Tender
-            </button>
-          )}
+          <button 
+            onClick={() => navigate(`/tenders/${tenderId}/edit`)}
+            className="inline-flex items-center px-3 py-2 bg-primary-50 text-primary-700 rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
+          >
+            <Pencil className="h-5 w-5 mr-1.5" />
+            Edit Tender
+          </button>
         </div>
       </div>
 
@@ -111,7 +142,7 @@ const SubmissionEvaluation = () => {
           <FileText className="h-5 w-5 text-neutral-500 mr-3" />
           <div>
             <h3 className="text-sm font-medium text-neutral-700">Tender</h3>
-            <p className="text-sm text-neutral-600">{tender.title}</p>
+            <p className="text-sm text-neutral-600">{offer.tenderId}</p>
           </div>
         </div>
         
@@ -119,7 +150,7 @@ const SubmissionEvaluation = () => {
           <FileCheck className="h-5 w-5 text-neutral-500 mr-3" />
           <div>
             <h3 className="text-sm font-medium text-neutral-700">Vendor</h3>
-            <p className="text-sm text-neutral-600">{submission.vendor.name}</p>
+            <p className="text-sm text-neutral-600">{offer.vendor?.name}</p>
           </div>
         </div>
       </div>
@@ -132,16 +163,16 @@ const SubmissionEvaluation = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h3 className="text-sm font-medium text-neutral-700 mb-2">Submitted On</h3>
-                <p className="text-neutral-600">{formatDate(submission.submittedDate)}</p>
+                <p className="text-neutral-600">{formatDate(offer.submitted_at)}</p>
               </div>
               <div>
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-neutral-700 mb-2">Documents</h3>
-                    <p className="text-neutral-600">{submission.documentCount} documents</p>
+                    <p className="text-neutral-600">{offer.documents.length} documents</p>
                   </div>
                   <button
-                    onClick={() => console.log('Download documents')}
+                    onClick={handleDownloadAll}
                     className="inline-flex items-center px-2 py-1 bg-neutral-50 text-neutral-700 text-xs font-medium rounded border border-neutral-200 hover:bg-neutral-100 transition-colors"
                   >
                     <Download className="w-3 h-3 mr-1" />
