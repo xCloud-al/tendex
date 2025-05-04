@@ -14,8 +14,8 @@
     "submitted_at": {
       "type": "datetime"
     },
-    "final_score": {
-      "type": "biginteger"
+    "score": {
+      "type": "integer"
     },
     "evaluator": {
       "type": "relation",
@@ -30,11 +30,6 @@
     },
     "comments": {
       "type": "richtext"
-    },
-    "criteria_scores": {
-      "type": "component",
-      "repeatable": true,
-      "component": "score.score-summary"
     }
   }
 }

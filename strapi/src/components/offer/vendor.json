@@ -1,0 +1,33 @@
+{
+  "collectionName": "components_offer_vendors",
+  "info": {
+    "displayName": "Vendor",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "email"
+    },
+    "country": {
+      "type": "enumeration",
+      "enum": [
+        "AL",
+        "US",
+        "UK"
+      ]
+    },
+    "city": {
+      "type": "string"
+    },
+    "phone_number": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    }
+  }
+}
