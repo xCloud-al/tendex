@@ -6,11 +6,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { formatDate, daysUntil } from '../utils/dateUtils';
-<<<<<<< HEAD
-import { useCheckEligibilityMutation, useGetTenderByIdQuery } from '../store/services/api';
-=======
-import { useCheckEligibilityMutation, useRunAutomaticEvaluationMutation } from '../store/services/api';
->>>>>>> 60e007f4a11e764bb658f307c84d3b5fea23fe8b
+import { useCheckEligibilityMutation, useGetTenderByIdQuery, useRunAutomaticEvaluationMutation } from '../store/services/api';
 import { ToastContext } from '../components/Layout';
 import { useContext } from 'react';
 import JSZip from 'jszip';
@@ -134,27 +130,6 @@ const TenderDetails: React.FC = () => {
 
   const handleAICheck = async () => {
     try {
-<<<<<<< HEAD
-      // Run AI check for each offer
-      const updatedOffers = await Promise.all(
-        tender.offers.map(async (offer: Offer) => {
-          const result = await checkEligibility({
-            tenderId: id!,
-            vendorId: offer.vendor.id
-          }).unwrap();
-
-      return {
-            ...offer,
-            aiCheck: {
-              isQualified: result.isEligible,
-              reasons: result.missingCriteria,
-              score: result.isEligible ? 100 : 0
-            },
-            offer_status: result.isEligible ? 'qualified' as const : 'disqualified' as const
-          };
-        })
-      );
-=======
       const result = await runAutomaticEvaluation({
         tenderId: id!
       }).unwrap();
@@ -175,7 +150,6 @@ const TenderDetails: React.FC = () => {
           status: evaluation.evaluation.overall_qualification_status === 'PASS' ? 'qualified' as const : 'disqualified' as const
         };
       });
->>>>>>> 60e007f4a11e764bb658f307c84d3b5fea23fe8b
 
       // Update the tender with the new offers
       tender.offers = updatedOffers;
