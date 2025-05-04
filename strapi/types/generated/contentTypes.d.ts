@@ -474,7 +474,9 @@ export interface ApiOfferOffer extends Struct.CollectionTypeSchema {
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::offer.offer'> &
       Schema.Attribute.Private;
-    offer_status: Schema.Attribute.Enumeration<['DRAFT', 'SUBMITTED']>;
+    offer_status: Schema.Attribute.Enumeration<
+      ['DRAFT', 'SUBMITTED', 'QUALIFIED', 'DISQUALIFIED', 'APPROVED']
+    >;
     publishedAt: Schema.Attribute.DateTime;
     submitted_at: Schema.Attribute.DateTime;
     tender: Schema.Attribute.Relation<'manyToOne', 'api::tender.tender'>;

@@ -81,6 +81,15 @@ export default factories.createCoreService('api::automatic-evaluation.automatic-
                 status: 'published'
             });
 
+            if (evaluation.evaluation.overall_qualification_status === 'FAIL') {
+                await strapi.documents('api::offer.offer').update({
+                    documentId: offer.documentId,
+                    data: {
+                        offer_status: "DISQUALIFIED",
+                    },
+                });
+            }
+
             evaluations.push({
                 'offer': offer.documentId,
                 'evaluation': evaluation,

@@ -15,7 +15,10 @@
       "type": "enumeration",
       "enum": [
         "DRAFT",
-        "SUBMITTED"
+        "SUBMITTED",
+        "QUALIFIED",
+        "DISQUALIFIED",
+        "APPROVED"
       ]
     },
     "submitted_at": {
