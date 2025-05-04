@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   FileText, Calendar, Clock, Users, Download, Edit, Trash2, 
-  CheckCircle, AlertTriangle, ExternalLink, FileCheck, BarChart, Share2, Pencil,
+  CheckCircle, AlertTriangle, ExternalLink, FileCheck, BarChart, Share2, Pencil, UserCheck, Mail, Phone, Star, 
   Loader2
 } from 'lucide-react';
 import { mockTenders, mockSubmissions } from '../data/mockData';
@@ -18,6 +18,52 @@ const TenderDetails: React.FC = () => {
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
   const [submissions, setSubmissions] = useState(mockSubmissions.filter(s => s.tenderId === id));
   const [hasRunAICheck, setHasRunAICheck] = useState(false);
+  const [assignedEvaluators, setAssignedEvaluators] = useState([
+    {
+      id: '1',
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      phone: '+1 234 567 890',
+      expertise: ['IT', 'Software Development'],
+      status: 'active',
+      rating: 4.5,
+      assignedTenders: 3
+    },
+    {
+      id: '2',
+      name: 'Jane Smith',
+      email: 'jane.smith@example.com',
+      phone: '+1 234 567 891',
+      expertise: ['Construction', 'Engineering'],
+      status: 'active',
+      rating: 4.8,
+      assignedTenders: 2
+    }
+  ]);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [availableEvaluators, setAvailableEvaluators] = useState([
+    {
+      id: '3',
+      name: 'Michael Johnson',
+      email: 'michael.johnson@example.com',
+      phone: '+1 234 567 892',
+      expertise: ['Finance', 'Accounting'],
+      status: 'active',
+      rating: 4.7,
+      assignedTenders: 1
+    },
+    {
+      id: '4',
+      name: 'Sarah Williams',
+      email: 'sarah.williams@example.com',
+      phone: '+1 234 567 893',
+      expertise: ['Legal', 'Compliance'],
+      status: 'active',
+      rating: 4.9,
+      assignedTenders: 2
+    }
+  ]);
+  const [selectedEvaluators, setSelectedEvaluators] = useState<string[]>([]);
   const [checkEligibility, { isLoading: isCheckingEligibility }] = useCheckEligibilityMutation();
   const { addToast } = useContext(ToastContext);
   
@@ -135,6 +181,14 @@ const TenderDetails: React.FC = () => {
   
   const handleEdit = () => {
     navigate(`/tenders/${id}/edit`);
+  };
+  
+  const handleAssignEvaluators = () => {
+    const newEvaluators = availableEvaluators.filter(e => selectedEvaluators.includes(e.id));
+    setAssignedEvaluators(prev => [...prev, ...newEvaluators]);
+    setAvailableEvaluators(prev => prev.filter(e => !selectedEvaluators.includes(e.id)));
+    setSelectedEvaluators([]);
+    setIsAssignModalOpen(false);
   };
   
   const renderSubmissionsTab = () => (
@@ -384,6 +438,399 @@ const TenderDetails: React.FC = () => {
         );
         
       case 'submissions':
+        return (
+          <div className="bg-white rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold">Vendor Submissions</h2>
+                <div className="flex items-center space-x-4">
+                  <span className="text-neutral-500 text-sm">
+                    {submissions.length} submission{submissions.length !== 1 ? 's' : ''}
+                  </span>
+                  {!isActive && !isCompleted && (
+                    <button
+                      onClick={handleAICheck}
+                      disabled={hasRunAICheck}
+                      className={`inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md border transition-colors
+                        ${hasRunAICheck 
+                          ? 'bg-neutral-50 text-neutral-400 border-neutral-200 cursor-not-allowed' 
+                          : 'bg-primary-50 text-primary-700 border-primary-200 hover:bg-primary-100'
+                        }`}
+                    >
+                      <FileCheck className="h-4 w-4 mr-1.5" />
+                      {hasRunAICheck ? 'AI Check Completed' : 'Run AI Criteria Check'}
+                    </button>
+                  )}
+                </div>
+              </div>
+              
+              {isActive && (
+                <div className="bg-warning-50 border-l-4 border-warning-500 p-4 rounded mb-6">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <AlertTriangle className="h-5 w-5 text-warning-500" />
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-warning-800">
+                        Submissions are hidden until deadline
+                      </h3>
+                      <div className="mt-2 text-sm text-warning-700">
+                        <p>
+                          To ensure fairness, vendor submissions cannot be viewed or evaluated until the tender 
+                          deadline has passed. Check back after {formatDate(tender.deadline)}.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {!isActive && submissions.length === 0 && (
+                <div className="text-center py-8">
+                  <Users className="h-12 w-12 text-neutral-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-neutral-700 mb-1">No submissions yet</h3>
+                  <p className="text-neutral-500">This tender hasn't received any submissions.</p>
+                </div>
+              )}
+              
+              {!isActive && submissions.length > 0 && (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-neutral-200">
+                    <thead>
+                      <tr>
+                        <th 
+                          className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
+                          onClick={() => handleSort('vendor')}
+                        >
+                          <div className="flex items-center">
+                            Vendor
+                            {sortConfig?.key === 'vendor' && (
+                              <span className="ml-1">
+                                {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                              </span>
+                            )}
+                          </div>
+                        </th>
+                        <th 
+                          className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
+                          onClick={() => handleSort('submittedOn')}
+                        >
+                          <div className="flex items-center">
+                            Submitted On
+                            {sortConfig?.key === 'submittedOn' && (
+                              <span className="ml-1">
+                                {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                              </span>
+                            )}
+                          </div>
+                        </th>
+                        <th 
+                          className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
+                          onClick={() => handleSort('documents')}
+                        >
+                          <div className="flex items-center">
+                            Documents
+                            {sortConfig?.key === 'documents' && (
+                              <span className="ml-1">
+                                {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                              </span>
+                            )}
+                          </div>
+                        </th>
+                        <th 
+                          className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
+                          onClick={() => handleSort('status')}
+                        >
+                          <div className="flex items-center">
+                            Status
+                            {sortConfig?.key === 'status' && (
+                              <span className="ml-1">
+                                {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                              </span>
+                            )}
+                          </div>
+                        </th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-neutral-200">
+                      {submissions.map((sub) => (
+                        <tr key={sub.id} className="hover:bg-neutral-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 h-10 w-10 rounded-full bg-neutral-200 flex items-center justify-center">
+                                <span className="text-neutral-700 font-medium">
+                                  {sub.vendor.name.split(' ').map(n => n[0]).join('')}
+                                </span>
+                              </div>
+                              <div className="ml-4">
+                                <div className="text-sm font-medium text-neutral-900">{sub.vendor.name}</div>
+                                <div className="text-sm text-neutral-500">{sub.vendor.email}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                            {formatDate(sub.submittedDate)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                            {sub.documentCount} documents
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(sub.status)}`}>
+                              {sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button
+                              onClick={() => navigate(`/tenders/${tender.id}/submissions/${sub.id}/evaluate`)}
+                              className="inline-flex items-center px-3 py-1.5 bg-primary-50 text-primary-700 text-sm font-medium rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
+                            >
+                              Evaluate
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      
+      case 'evaluators':
+        return (
+          <div className="bg-white rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold">Assigned Evaluators</h2>
+                <button 
+                  onClick={() => setIsAssignModalOpen(true)}
+                  className="inline-flex items-center px-3 py-1.5 bg-primary-50 text-primary-700 text-sm font-medium rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
+                >
+                  <Users className="h-4 w-4 mr-1.5" />
+                  Assign Evaluator
+                </button>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-neutral-200">
+                  <thead className="bg-neutral-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Evaluator</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Contact</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Expertise</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Rating</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-neutral-200">
+                    {assignedEvaluators.map((evaluator) => (
+                      <tr key={evaluator.id} className="hover:bg-neutral-50">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-10 w-10">
+                              <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
+                                <UserCheck className="h-5 w-5 text-primary-600" />
+                              </div>
+                            </div>
+                            <div className="ml-4">
+                              <Link
+                                to={`/evaluators/${evaluator.id}`}
+                                className="text-sm font-medium text-primary-600 hover:text-primary-900"
+                              >
+                                {evaluator.name}
+                              </Link>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-neutral-500">
+                            <div className="flex items-center">
+                              <Mail className="h-4 w-4 mr-2" />
+                              {evaluator.email}
+                            </div>
+                            <div className="flex items-center mt-1">
+                              <Phone className="h-4 w-4 mr-2" />
+                              {evaluator.phone}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-wrap gap-1">
+                            {evaluator.expertise.map((skill, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800"
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(evaluator.status)}`}>
+                            {evaluator.status.charAt(0).toUpperCase() + evaluator.status.slice(1)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <Star className="h-4 w-4 text-warning-500 mr-1" />
+                            <span className="text-sm text-neutral-900">{evaluator.rating}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex items-center justify-end space-x-3">
+                            <Link
+                              to={`/evaluators/${evaluator.id}`}
+                              className="text-primary-600 hover:text-primary-900"
+                            >
+                              View Details
+                            </Link>
+                            <button
+                              onClick={() => {
+                                if (window.confirm('Are you sure you want to remove this evaluator?')) {
+                                  setAssignedEvaluators(prev => prev.filter(e => e.id !== evaluator.id));
+                                }
+                              }}
+                              className="text-error-600 hover:text-error-900"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Assign Evaluator Modal */}
+            {isAssignModalOpen && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                  <div className="p-6">
+                    <div className="flex justify-between items-center mb-6">
+                      <h3 className="text-lg font-semibold">Assign Evaluators</h3>
+                      <button
+                        onClick={() => setIsAssignModalOpen(false)}
+                        className="text-neutral-400 hover:text-neutral-500"
+                      >
+                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    <div className="mb-6">
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-neutral-200">
+                          <thead className="bg-neutral-50">
+                            <tr>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedEvaluators.length === availableEvaluators.length}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedEvaluators(availableEvaluators.map(e => e.id));
+                                    } else {
+                                      setSelectedEvaluators([]);
+                                    }
+                                  }}
+                                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded"
+                                />
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Evaluator</th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Expertise</th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Rating</th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-neutral-200">
+                            {availableEvaluators.map((evaluator) => (
+                              <tr key={evaluator.id} className="hover:bg-neutral-50">
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedEvaluators.includes(evaluator.id)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setSelectedEvaluators(prev => [...prev, evaluator.id]);
+                                      } else {
+                                        setSelectedEvaluators(prev => prev.filter(id => id !== evaluator.id));
+                                      }
+                                    }}
+                                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded"
+                                  />
+                                </td>
+                                <td className="px-6 py-4">
+                                  <div className="flex items-center">
+                                    <div className="flex-shrink-0 h-10 w-10">
+                                      <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
+                                        <UserCheck className="h-5 w-5 text-primary-600" />
+                                      </div>
+                                    </div>
+                                    <div className="ml-4">
+                                      <div className="text-sm font-medium text-neutral-900">{evaluator.name}</div>
+                                      <div className="text-sm text-neutral-500">{evaluator.email}</div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <div className="flex flex-wrap gap-1">
+                                    {evaluator.expertise.map((skill, index) => (
+                                      <span
+                                        key={index}
+                                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800"
+                                      >
+                                        {skill}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="flex items-center">
+                                    <Star className="h-4 w-4 text-warning-500 mr-1" />
+                                    <span className="text-sm text-neutral-900">{evaluator.rating}</span>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end space-x-3">
+                      <button
+                        onClick={() => setIsAssignModalOpen(false)}
+                        className="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md hover:bg-neutral-50"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleAssignEvaluators}
+                        disabled={selectedEvaluators.length === 0}
+                        className={`px-4 py-2 text-sm font-medium text-white rounded-md ${
+                          selectedEvaluators.length === 0
+                            ? 'bg-primary-300 cursor-not-allowed'
+                            : 'bg-primary-600 hover:bg-primary-700'
+                        }`}
+                      >
+                        Assign Selected
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      
         return renderSubmissionsTab();
         
       default:
@@ -504,6 +951,16 @@ const TenderDetails: React.FC = () => {
                       }`}
           >
             Submissions {submissions.length > 0 && `(${submissions.length})`}
+          </button>
+          <button
+            onClick={() => setActiveTab('evaluators')}
+            className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap
+                      ${activeTab === 'evaluators' 
+                        ? 'border-primary-600 text-primary-600' 
+                        : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
+                      }`}
+          >
+            Evaluators {assignedEvaluators.length > 0 && `(${assignedEvaluators.length})`}
           </button>
         </nav>
       </div>
