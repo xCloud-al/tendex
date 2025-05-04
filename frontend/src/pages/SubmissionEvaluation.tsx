@@ -52,7 +52,7 @@ const SubmissionEvaluation = () => {
       
       // Generate and download the zip file
       const content = await zip.generateAsync({ type: 'blob' });
-      saveAs(content, `${offer.vendor.name}_documents.zip`);
+      saveAs(content, `${offer.vendor?.name}_documents.zip`);
     } catch (error) {
       console.error('Error downloading documents:', error);
       // TODO: Add toast notification for error
@@ -150,7 +150,7 @@ const SubmissionEvaluation = () => {
           <FileCheck className="h-5 w-5 text-neutral-500 mr-3" />
           <div>
             <h3 className="text-sm font-medium text-neutral-700">Vendor</h3>
-            <p className="text-sm text-neutral-600">{offer.vendor.name}</p>
+            <p className="text-sm text-neutral-600">{offer.vendor?.name}</p>
           </div>
         </div>
       </div>

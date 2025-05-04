@@ -68,7 +68,7 @@ const TenderDetails: React.FC = () => {
   const [checkEligibility, { isLoading: isCheckingEligibility }] = useCheckEligibilityMutation();
   const [runAutomaticEvaluation, { isLoading: isRunningAutomaticEvaluation }] = useRunAutomaticEvaluationMutation();
   const { addToast } = useContext(ToastContext);
-  const { data: tender, isLoading, error } = useGetTenderByIdQuery(id!);
+  const { data: tender, isLoading, error, refetch } = useGetTenderByIdQuery(id!);
   
   if (isLoading) {
     return (
@@ -130,31 +130,15 @@ const TenderDetails: React.FC = () => {
 
   const handleAICheck = async () => {
     try {
-      const result = await runAutomaticEvaluation({
+      await runAutomaticEvaluation({
         tenderId: id!
       }).unwrap();
 
-      // Update submissions with the evaluation results
-      const updatedSubmissions = tender.offers?.map(sub => {
-        const evaluation = result.find(evaluationResult => evaluationResult.offer === sub.id);
-        if (!evaluation) return sub;
-
-        return {
-          ...sub,
-          aiCheck: {
-            isQualified: evaluation.evaluation.overall_qualification_status === 'PASS',
-            reasons: evaluation.evaluation.missing_documents,
-            criteriaVerification: evaluation.evaluation.criteria_verification,
-            score: evaluation.evaluation.overall_qualification_status === 'PASS' ? 100 : 0
-          },
-          status: evaluation.evaluation.overall_qualification_status === 'PASS' ? 'qualified' as const : 'disqualified' as const
-        };
-      });
-
-      // Update the tender with the new offers
-      tender.offers = updatedSubmissions;
-    setHasRunAICheck(true);
+      setHasRunAICheck(true);
       addToast('AI criteria check completed successfully', 'success');
+      
+      // Refetch tender data to get the latest state
+      await refetch();
     } catch (error) {
       console.error('Error running AI check:', error);
       addToast('Failed to run AI criteria check', 'error');
@@ -462,12 +446,12 @@ const TenderDetails: React.FC = () => {
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10 rounded-full bg-neutral-200 flex items-center justify-center">
                           <span className="text-neutral-700 font-medium">
-                            {sub.vendor.name.split(' ').map(n => n[0]).join('')}
+                            {sub.vendor?.name.split(' ').map(n => n[0]).join('')}
                           </span>
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-neutral-900">{sub.vendor.name}</div>
-                          <div className="text-sm text-neutral-500">{sub.vendor.email}</div>
+                          <div className="text-sm font-medium text-neutral-900">{sub.vendor?.name}</div>
+                          <div className="text-sm text-neutral-500">{sub.vendor?.email}</div>
                         </div>
                       </div>
                     </td>
@@ -760,12 +744,12 @@ const TenderDetails: React.FC = () => {
                             <div className="flex items-center">
                               <div className="flex-shrink-0 h-10 w-10 rounded-full bg-neutral-200 flex items-center justify-center">
                                 <span className="text-neutral-700 font-medium">
-                                  {sub.vendor.name.split(' ').map(n => n[0]).join('')}
+                                  {sub.vendor?.name.split(' ').map(n => n[0]).join('')}
                                 </span>
                               </div>
                               <div className="ml-4">
-                                <div className="text-sm font-medium text-neutral-900">{sub.vendor.name}</div>
-                                <div className="text-sm text-neutral-500">{sub.vendor.email}</div>
+                                <div className="text-sm font-medium text-neutral-900">{sub.vendor?.name}</div>
+                                <div className="text-sm text-neutral-500">{sub.vendor?.email}</div>
                               </div>
                             </div>
                           </td>
