@@ -17,16 +17,16 @@ services:
     network_mode: bridge
     restart: always
     
-  database:
-    image: postgres:15.2
-    volumes:
-    - "./database/data:/var/lib/postgresql/data"
-    env_file:
-      - "database/.env"
-    ports:
-      - "5432:5432"
-    network_mode: bridge
-    restart: always
+  # database:
+  #   image: postgres:15.2
+  #   volumes:
+  #   - "./database/data:/var/lib/postgresql/data"
+  #   env_file:
+  #     - "database/.env"
+  #   ports:
+  #     - "5432:5432"
+  #   network_mode: bridge
+  #   restart: always
 
   strapi:
     build:
