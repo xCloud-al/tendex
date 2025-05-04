@@ -10,28 +10,31 @@ import { useGetOfferByIdQuery } from '../store/services/api';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-interface AICheckResult {
-  isQualified: boolean;
-  reasons: string[];
-  score: number;
+interface AutomaticEvaluation {
+  id: number;
+  documentId: string;
+  overall_qualification_status: 'PASS' | 'FAIL';
+  missing_documents: string[];
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
 }
 
 const SubmissionEvaluation = () => {
   const { tenderId, submissionId } = useParams<{ tenderId: string; submissionId: string }>();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('details');
-  const [aiResult, setAIResult] = useState<AICheckResult | null>(null);
-  const [isEditingAI, setIsEditingAI] = useState(false);
-  const [tempAIResult, setTempAIResult] = useState<AICheckResult | null>(null);
+  const [isEditingEvaluation, setIsEditingEvaluation] = useState(false);
+  const [tempEvaluation, setTempEvaluation] = useState<AutomaticEvaluation | null>(null);
   const [manualScore, setManualScore] = useState<number>(0);
   const [comments, setComments] = useState('');
 
   const { data: offer, isLoading, error } = useGetOfferByIdQuery(submissionId!);
 
-  // Initialize AI result from offer data
+  // Initialize evaluation from offer data
   React.useEffect(() => {
-    if (offer?.aiCheck) {
-      setAIResult(offer.aiCheck);
+    if (offer?.automatic_evaluation) {
+      setTempEvaluation(offer.automatic_evaluation);
     }
   }, [offer]);
 
@@ -52,7 +55,7 @@ const SubmissionEvaluation = () => {
       
       // Generate and download the zip file
       const content = await zip.generateAsync({ type: 'blob' });
-      saveAs(content, `${offer.vendor.name}_documents.zip`);
+      saveAs(content, `${offer.vendor?.name}_documents.zip`);
     } catch (error) {
       console.error('Error downloading documents:', error);
       // TODO: Add toast notification for error
@@ -83,30 +86,11 @@ const SubmissionEvaluation = () => {
     );
   }
 
-  const handleEditAI = () => {
-    setTempAIResult(aiResult);
-    setIsEditingAI(true);
-  };
-
-  const handleCancelEdit = () => {
-    setTempAIResult(null);
-    setIsEditingAI(false);
-  };
-
-  const handleSaveAI = () => {
-    if (tempAIResult) {
-      setAIResult(tempAIResult);
-      setIsEditingAI(false);
-      setTempAIResult(null);
-    }
-  };
-
   const handleSubmitEvaluation = () => {
     // TODO: Implement evaluation submission
     console.log('Evaluation submitted:', {
       submissionId,
       tenderId,
-      aiResult,
       manualScore,
       comments
     });
@@ -169,7 +153,7 @@ const SubmissionEvaluation = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-neutral-700 mb-2">Documents</h3>
-                    <p className="text-neutral-600">{offer.documents?.length} documents</p>
+                    <p className="text-neutral-600">{offer.documents.length} documents</p>
                   </div>
                   <button
                     onClick={handleDownloadAll}
@@ -186,26 +170,29 @@ const SubmissionEvaluation = () => {
           {/* AI Criteria Check */}
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">AI Criteria Check</h2>
-              {!isEditingAI && aiResult && (
+              <h2 className="text-xl font-semibold">Automatic Evaluation</h2>
+              {!isEditingEvaluation && offer?.automatic_evaluation && (
                 <button
-                  onClick={handleEditAI}
+                  onClick={() => setIsEditingEvaluation(true)}
                   className="inline-flex items-center px-3 py-1.5 bg-primary-50 text-primary-700 text-sm font-medium rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
                 >
                   <FileCheck className="w-4 h-4 mr-1.5" />
-                  Edit AI Results
+                  Edit Evaluation
                 </button>
               )}
-              {isEditingAI && (
+              {isEditingEvaluation && (
                 <div className="flex space-x-2">
                   <button
-                    onClick={handleCancelEdit}
+                    onClick={() => setIsEditingEvaluation(false)}
                     className="inline-flex items-center px-3 py-1.5 bg-neutral-50 text-neutral-700 text-sm font-medium rounded-md border border-neutral-200 hover:bg-neutral-100 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
-                    onClick={handleSaveAI}
+                    onClick={() => {
+                      // TODO: Implement save evaluation
+                      setIsEditingEvaluation(false);
+                    }}
                     className="inline-flex items-center px-3 py-1.5 bg-primary-50 text-primary-700 text-sm font-medium rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
                   >
                     Save Changes
@@ -214,71 +201,74 @@ const SubmissionEvaluation = () => {
               )}
             </div>
 
-            {(aiResult || isEditingAI) && (
+            {offer?.automatic_evaluation && (
               <div className="space-y-4">
                 <div className={`p-4 rounded-lg ${
-                  (isEditingAI ? tempAIResult?.isQualified : aiResult?.isQualified)
-                    ? 'bg-warning-50 border border-warning-200' 
+                  offer.automatic_evaluation.overall_qualification_status === 'PASS'
+                    ? 'bg-success-50 border border-success-200' 
                     : 'bg-error-50 border border-error-200'
                 }`}>
                   <div className="flex items-start">
                     <div className="flex-shrink-0">
-                      {(isEditingAI ? tempAIResult?.isQualified : aiResult?.isQualified) ? (
-                        <AlertTriangle className="h-5 w-5 text-warning-500" />
+                      {offer.automatic_evaluation.overall_qualification_status === 'PASS' ? (
+                        <CheckCircle className="h-5 w-5 text-success-500" />
                       ) : (
                         <XCircle className="h-5 w-5 text-error-500" />
                       )}
                     </div>
                     <div className="ml-3">
                       <h3 className="text-sm font-medium">
-                        {(isEditingAI ? tempAIResult?.isQualified : aiResult?.isQualified) 
+                        {offer.automatic_evaluation.overall_qualification_status === 'PASS' 
                           ? 'Qualified for Evaluation' 
                           : 'Disqualified'}
                       </h3>
-                      <div className="mt-2 text-sm">
-                        <ul className="list-disc pl-5 space-y-1">
-                          {(isEditingAI ? tempAIResult?.reasons : aiResult?.reasons)?.map((reason, index) => (
-                            <li key={index}>{reason}</li>
-                          ))}
-                        </ul>
-                      </div>
+                      {offer.automatic_evaluation.missing_documents.length > 0 && (
+                        <div className="mt-2 text-sm">
+                          <h4 className="font-medium mb-2">Missing Documents:</h4>
+                          <ul className="list-disc pl-5 space-y-1">
+                            {offer.automatic_evaluation.missing_documents.map((doc, index) => (
+                              <li key={index} className="text-neutral-700">{doc}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                {isEditingAI && (
+                {isEditingEvaluation && (
                   <div className="p-4 bg-neutral-50 rounded-lg border border-neutral-200">
-                    <h3 className="text-sm font-medium text-neutral-700 mb-3">Edit AI Results</h3>
+                    <h3 className="text-sm font-medium text-neutral-700 mb-3">Edit Evaluation</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-neutral-700 mb-2">
                           Qualification Status
                         </label>
                         <select
-                          value={tempAIResult?.isQualified ? 'qualified' : 'disqualified'}
-                          onChange={(e) => setTempAIResult(prev => prev ? {
+                          value={tempEvaluation?.overall_qualification_status || 'FAIL'}
+                          onChange={(e) => setTempEvaluation(prev => prev ? {
                             ...prev,
-                            isQualified: e.target.value === 'qualified'
+                            overall_qualification_status: e.target.value as 'PASS' | 'FAIL'
                           } : null)}
                           className="block w-full px-3 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                         >
-                          <option value="qualified">Qualified</option>
-                          <option value="disqualified">Disqualified</option>
+                          <option value="PASS">Qualified</option>
+                          <option value="FAIL">Disqualified</option>
                         </select>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-neutral-700 mb-2">
-                          Reasons
+                          Missing Documents
                         </label>
                         <textarea
-                          value={tempAIResult?.reasons.join('\n')}
-                          onChange={(e) => setTempAIResult(prev => prev ? {
+                          value={tempEvaluation?.missing_documents.join('\n')}
+                          onChange={(e) => setTempEvaluation(prev => prev ? {
                             ...prev,
-                            reasons: e.target.value.split('\n').filter(line => line.trim())
+                            missing_documents: e.target.value.split('\n').filter(line => line.trim())
                           } : null)}
                           rows={4}
                           className="block w-full px-3 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-                          placeholder="Enter reasons (one per line)"
+                          placeholder="Enter missing documents (one per line)"
                         />
                       </div>
                     </div>
@@ -289,7 +279,7 @@ const SubmissionEvaluation = () => {
           </div>
 
           {/* Manual Evaluation */}
-          {aiResult?.isQualified && (
+          {offer?.automatic_evaluation?.overall_qualification_status === 'PASS' && (
             <div>
               <h2 className="text-xl font-semibold mb-4">Manual Evaluation</h2>
               <div className="space-y-6">

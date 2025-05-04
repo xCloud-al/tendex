@@ -21,18 +21,32 @@ export interface Vendor {
 }
 
 export interface Offer {
-  documentId: any;
-  submitted_at: string;
   id: string;
+  documentId: string;
   tenderId: string;
-  vendor: Vendor;
-  submittedAt: string;
-  offer_status: 'submitted' | 'qualified' | 'disqualified' | 'accepted';
-  documents: Document[];
-  aiCheck?: {
-    isQualified: boolean;
-    reasons: string[];
-    score: number;
+  vendor?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  submitted_at: string;
+  documents: Array<{
+    id: string;
+    name: string;
+    url: string;
+    ext: string;
+    size: string;
+    updatedAt: string;
+  }>;
+  offer_status: 'DRAFT' | 'SUBMITTED' | 'QUALIFIED' | 'DISQUALIFIED' | 'APPROVED';
+  automatic_evaluation?: {
+    id: number;
+    documentId: string;
+    overall_qualification_status: 'PASS' | 'FAIL';
+    missing_documents: string[];
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
   };
 }
 
