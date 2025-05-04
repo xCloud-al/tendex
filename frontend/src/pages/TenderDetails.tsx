@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
-  FileText, Calendar, Clock, Users, Download, Edit, Trash2, 
-  CheckCircle, AlertTriangle, ExternalLink, FileCheck, BarChart, Share2, Pencil, UserCheck, Mail, Phone, Star, 
+  FileText, Calendar, Clock, Users, Download, Trash2, 
+  CheckCircle, AlertTriangle, ExternalLink, FileCheck, Share2, Pencil, UserCheck, Mail, Phone, Star, 
   Loader2
 } from 'lucide-react';
 import { formatDate, daysUntil } from '../utils/dateUtils';
@@ -108,7 +108,7 @@ const TenderDetails: React.FC = () => {
     setSortConfig({ key, direction });
   };
 
-  const sortedOffers = [...(tender.offers || [])].sort((a, b) => {
+    const sortedSubmissions = [...(tender.offers || [])].sort((a, b) => {
     if (!sortConfig) return 0;
     
     const { key, direction } = sortConfig;
@@ -152,7 +152,7 @@ const TenderDetails: React.FC = () => {
       });
 
       // Update the tender with the new offers
-      tender.offers = updatedOffers;
+      tender.offers = updatedSubmissions;
     setHasRunAICheck(true);
       addToast('AI criteria check completed successfully', 'success');
     } catch (error) {
@@ -232,102 +232,102 @@ const TenderDetails: React.FC = () => {
     }
   };
   
-  const renderOffersTab = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Vendor Offers</h3>
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-500">Sort by:</span>
-          <select
-            value={sortConfig?.key || ''}
-            onChange={(e) => handleSort(e.target.value)}
-            className="border rounded-md px-3 py-1 text-sm"
-          >
-            <option value="vendor">Vendor Name</option>
-            <option value="submittedAt">Submission Date</option>
-            <option value="documents">Document Count</option>
-            <option value="status">Status</option>
-          </select>
-          <button
-            onClick={() => setSortConfig(prev => prev ? { ...prev, direction: prev.direction === 'asc' ? 'desc' : 'asc' } : null)}
-            className="p-1 hover:bg-gray-100 rounded"
-          >
-            {sortConfig?.direction === 'asc' ? '↑' : '↓'}
-          </button>
-        </div>
-      </div>
+  // const renderOffersTab = () => (
+  //   <div className="space-y-6">
+  //     <div className="flex justify-between items-center">
+  //       <h3 className="text-lg font-semibold">Vendor Offers</h3>
+  //       <div className="flex items-center space-x-4">
+  //         <span className="text-sm text-gray-500">Sort by:</span>
+  //         <select
+  //           value={sortConfig?.key || ''}
+  //           onChange={(e) => handleSort(e.target.value)}
+  //           className="border rounded-md px-3 py-1 text-sm"
+  //         >
+  //           <option value="vendor">Vendor Name</option>
+  //           <option value="submittedAt">Submission Date</option>
+  //           <option value="documents">Document Count</option>
+  //           <option value="status">Status</option>
+  //         </select>
+  //         <button
+  //           onClick={() => setSortConfig(prev => prev ? { ...prev, direction: prev.direction === 'asc' ? 'desc' : 'asc' } : null)}
+  //           className="p-1 hover:bg-gray-100 rounded"
+  //         >
+  //           {sortConfig?.direction === 'asc' ? '↑' : '↓'}
+  //         </button>
+  //       </div>
+  //     </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Vendor
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Submission Date
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Documents
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {sortedOffers.map((offer) => (
-              <tr key={offer.id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">
-                        {offer.vendor.name}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {offer.vendor.email}
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    {formatDate(offer.submitted_at)}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    {offer.documents.length}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    offer.offer_status === 'submitted' ? 'bg-blue-100 text-blue-800' :
-                    offer.offer_status === 'qualified' ? 'bg-green-100 text-green-800' :
-                    offer.offer_status === 'disqualified' ? 'bg-red-100 text-red-800' :
-                    'bg-purple-100 text-purple-800'
-                  }`}>
-                    {offer.offer_status.charAt(0).toUpperCase() + offer.offer_status.slice(1)}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button
-                    onClick={() => navigate(`/tenders/${tender.documentId}/submissions/${offer.documentId}/evaluate`)}
-                    className="text-indigo-600 hover:text-indigo-900"
-                  >
-                    View Details
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+  //     <div className="bg-white rounded-lg shadow overflow-hidden">
+  //       <table className="min-w-full divide-y divide-gray-200">
+  //         <thead className="bg-gray-50">
+  //           <tr>
+  //             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+  //               Vendor
+  //             </th>
+  //             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+  //               Submission Date
+  //             </th>
+  //             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+  //               Documents
+  //             </th>
+  //             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+  //               Status
+  //             </th>
+  //             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+  //               Actions
+  //             </th>
+  //           </tr>
+  //         </thead>
+  //         <tbody className="bg-white divide-y divide-gray-200">
+  //           {sortedOffers.map((offer) => (
+  //             <tr key={offer.id}>
+  //               <td className="px-6 py-4 whitespace-nowrap">
+  //                 <div className="flex items-center">
+  //                   <div>
+  //                     <div className="text-sm font-medium text-gray-900">
+  //                       {offer.vendor.name}
+  //                     </div>
+  //                     <div className="text-sm text-gray-500">
+  //                       {offer.vendor.email}
+  //                     </div>
+  //                   </div>
+  //                 </div>
+  //               </td>
+  //               <td className="px-6 py-4 whitespace-nowrap">
+  //                 <div className="text-sm text-gray-900">
+  //                   {formatDate(offer.submitted_at)}
+  //                 </div>
+  //               </td>
+  //               <td className="px-6 py-4 whitespace-nowrap">
+  //                 <div className="text-sm text-gray-900">
+  //                   {offer.documents.length}
+  //                 </div>
+  //               </td>
+  //               <td className="px-6 py-4 whitespace-nowrap">
+  //                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+  //                   offer.offer_status === 'submitted' ? 'bg-blue-100 text-blue-800' :
+  //                   offer.offer_status === 'qualified' ? 'bg-green-100 text-green-800' :
+  //                   offer.offer_status === 'disqualified' ? 'bg-red-100 text-red-800' :
+  //                   'bg-purple-100 text-purple-800'
+  //                 }`}>
+  //                   {offer.offer_status.charAt(0).toUpperCase() + offer.offer_status.slice(1)}
+  //                 </span>
+  //               </td>
+  //               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+  //                 <button
+  //                   onClick={() => navigate(`/tenders/${tender.documentId}/submissions/${offer.documentId}/evaluate`)}
+  //                   className="text-indigo-600 hover:text-indigo-900"
+  //                 >
+  //                   View Details
+  //                 </button>
+  //               </td>
+  //             </tr>
+  //           ))}
+  //         </tbody>
+  //       </table>
+  //     </div>
+  //   </div>
+  // );
 
   const renderSubmissionsTab = () => (
     <div className="bg-white rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
@@ -456,7 +456,7 @@ const TenderDetails: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-neutral-200">
-                {submissions.map((sub) => (
+                {tender.offers?.map((sub) => (
                   <tr key={sub.id} className="hover:bg-neutral-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -472,20 +472,20 @@ const TenderDetails: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
-                      {formatDate(sub.submittedDate)}
+                      {formatDate(sub.submitted_at)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
-                      {sub.documentCount} documents
+                      {sub.documents?.length} documents
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(sub.status)}`}>
-                        {getStatusIcon(sub.status)}
-                        {sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(sub.offer_status)}`}>
+                        {getStatusIcon(sub.offer_status)}
+                        {sub.offer_status.charAt(0).toUpperCase() + sub.offer_status.slice(1)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
-                        onClick={() => navigate(`/tenders/${tender.id}/submissions/${sub.id}/evaluate`)}
+                        onClick={() => navigate(`/tenders/${tender.documentId}/submissions/${sub.documentId}/evaluate`)}
                         className="inline-flex items-center px-3 py-1.5 bg-primary-50 text-primary-700 text-sm font-medium rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
                       >
                         Evaluate
@@ -626,182 +626,178 @@ const TenderDetails: React.FC = () => {
           </div>
         );
         
-      case 'offers':
-        return renderOffersTab();
-
-
-        case 'submissions':
-          return (
-            <div className="bg-white rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
-              <div className="p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold">Vendor Submissions</h2>
-                  <div className="flex items-center space-x-4">
-                    <span className="text-neutral-500 text-sm">
-                      {tender.offers?.length} submission{tender.offers?.length !== 1 ? 's' : ''}
-                    </span>
-                    {!isActive && !isCompleted && (
-                      <button
-                        onClick={handleAICheck}
-                        disabled={hasRunAICheck || isRunningAutomaticEvaluation}
-                        className={`inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md border transition-colors
-                          ${(hasRunAICheck || isRunningAutomaticEvaluation)
-                            ? 'bg-neutral-50 text-neutral-400 border-neutral-200 cursor-not-allowed' 
-                            : 'bg-primary-50 text-primary-700 border-primary-200 hover:bg-primary-100'
-                          }`}
-                      >
-                        {isRunningAutomaticEvaluation ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                            Running AI Check...
-                          </>
-                        ) : (
-                          <>
-                            <FileCheck className="h-4 w-4 mr-1.5" />
-                            {hasRunAICheck ? 'AI Check Completed' : 'Run AI Criteria Check'}
-                          </>
-                        )}
-                      </button>
-                    )}
-                  </div>
+      case 'submissions':
+        return (
+          <div className="bg-white rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold">Vendor Submissions</h2>
+                <div className="flex items-center space-x-4">
+                  <span className="text-neutral-500 text-sm">
+                    {tender.offers?.length} submission{tender.offers?.length !== 1 ? 's' : ''}
+                  </span>
+                  {!isActive && !isCompleted && (
+                    <button
+                      onClick={handleAICheck}
+                      disabled={hasRunAICheck || isRunningAutomaticEvaluation}
+                      className={`inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md border transition-colors
+                        ${(hasRunAICheck || isRunningAutomaticEvaluation)
+                          ? 'bg-neutral-50 text-neutral-400 border-neutral-200 cursor-not-allowed' 
+                          : 'bg-primary-50 text-primary-700 border-primary-200 hover:bg-primary-100'
+                        }`}
+                    >
+                      {isRunningAutomaticEvaluation ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                          Running AI Check...
+                        </>
+                      ) : (
+                        <>
+                          <FileCheck className="h-4 w-4 mr-1.5" />
+                          {hasRunAICheck ? 'AI Check Completed' : 'Run AI Criteria Check'}
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
-                
-                {isActive && (
-                  <div className="bg-warning-50 border-l-4 border-warning-500 p-4 rounded mb-6">
-                    <div className="flex">
-                      <div className="flex-shrink-0">
-                        <AlertTriangle className="h-5 w-5 text-warning-500" />
-                      </div>
-                      <div className="ml-3">
-                        <h3 className="text-sm font-medium text-warning-800">
-                          Submissions are hidden until deadline
-                        </h3>
-                        <div className="mt-2 text-sm text-warning-700">
-                          <p>
-                            To ensure fairness, vendor submissions cannot be viewed or evaluated until the tender 
-                            deadline has passed. Check back after {formatDate(tender.deadline)}.
-                          </p>
-                        </div>
+              </div>
+              
+              {isActive && (
+                <div className="bg-warning-50 border-l-4 border-warning-500 p-4 rounded mb-6">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <AlertTriangle className="h-5 w-5 text-warning-500" />
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-warning-800">
+                        Submissions are hidden until deadline
+                      </h3>
+                      <div className="mt-2 text-sm text-warning-700">
+                        <p>
+                          To ensure fairness, vendor submissions cannot be viewed or evaluated until the tender 
+                          deadline has passed. Check back after {formatDate(tender.deadline)}.
+                        </p>
                       </div>
                     </div>
                   </div>
-                )}
-                
-                {!isActive && tender.offers?.length === 0 && (
-                  <div className="text-center py-8">
-                    <Users className="h-12 w-12 text-neutral-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-neutral-700 mb-1">No submissions yet</h3>
-                    <p className="text-neutral-500">This tender hasn't received any submissions.</p>
-                  </div>
-                )}
-                
-                {!isActive && tender.offers?.length > 0 && (
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-neutral-200">
-                      <thead>
-                        <tr>
-                          <th 
-                            className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
-                            onClick={() => handleSort('vendor')}
-                          >
-                            <div className="flex items-center">
-                              Vendor
-                              {sortConfig?.key === 'vendor' && (
-                                <span className="ml-1">
-                                  {sortConfig.direction === 'asc' ? '↑' : '↓'}
-                                </span>
-                              )}
-                            </div>
-                          </th>
-                          <th 
-                            className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
-                            onClick={() => handleSort('submittedOn')}
-                          >
-                            <div className="flex items-center">
-                              Submitted On
-                              {sortConfig?.key === 'submittedOn' && (
-                                <span className="ml-1">
-                                  {sortConfig.direction === 'asc' ? '↑' : '↓'}
-                                </span>
-                              )}
-                            </div>
-                          </th>
-                          <th 
-                            className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
-                            onClick={() => handleSort('documents')}
-                          >
-                            <div className="flex items-center">
-                              Documents
-                              {sortConfig?.key === 'documents' && (
-                                <span className="ml-1">
-                                  {sortConfig.direction === 'asc' ? '↑' : '↓'}
-                                </span>
-                              )}
-                            </div>
-                          </th>
-                          <th 
-                            className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
-                            onClick={() => handleSort('status')}
-                          >
-                            <div className="flex items-center">
-                              Status
-                              {sortConfig?.key === 'status' && (
-                                <span className="ml-1">
-                                  {sortConfig.direction === 'asc' ? '↑' : '↓'}
-                                </span>
-                              )}
-                            </div>
-                          </th>
-                          <th className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-neutral-200">
-                        {tender.offers?.map((sub) => (
-                          <tr key={sub.id} className="hover:bg-neutral-50">
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center">
-                                <div className="flex-shrink-0 h-10 w-10 rounded-full bg-neutral-200 flex items-center justify-center">
-                                  <span className="text-neutral-700 font-medium">
-                                    {sub.vendor.name.split(' ').map(n => n[0]).join('')}
-                                  </span>
-                                </div>
-                                <div className="ml-4">
-                                  <div className="text-sm font-medium text-neutral-900">{sub.vendor.name}</div>
-                                  <div className="text-sm text-neutral-500">{sub.vendor.email}</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
-                              {formatDate(sub.submittedDate)}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
-                              {sub.documentCount} documents
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(sub.status)}`}>
-                                {getStatusIcon(sub.status)}
-                                {sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
+                </div>
+              )}
+              
+              {!isActive && tender.offers?.length === 0 && (
+                <div className="text-center py-8">
+                  <Users className="h-12 w-12 text-neutral-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-neutral-700 mb-1">No submissions yet</h3>
+                  <p className="text-neutral-500">This tender hasn't received any submissions.</p>
+                </div>
+              )}
+              
+              {!isActive && tender.offers?.length > 0 && (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-neutral-200">
+                    <thead>
+                      <tr>
+                        <th 
+                          className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
+                          onClick={() => handleSort('vendor')}
+                        >
+                          <div className="flex items-center">
+                            Vendor
+                            {sortConfig?.key === 'vendor' && (
+                              <span className="ml-1">
+                                {sortConfig.direction === 'asc' ? '↑' : '↓'}
                               </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                              <button
-                                onClick={() => navigate(`/tenders/${tender.id}/submissions/${sub.id}/evaluate`)}
-                                className="inline-flex items-center px-3 py-1.5 bg-primary-50 text-primary-700 text-sm font-medium rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
-                              >
-                                Evaluate
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
+                            )}
+                          </div>
+                        </th>
+                        <th 
+                          className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
+                          onClick={() => handleSort('submittedOn')}
+                        >
+                          <div className="flex items-center">
+                            Submitted On
+                            {sortConfig?.key === 'submittedOn' && (
+                              <span className="ml-1">
+                                {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                              </span>
+                            )}
+                          </div>
+                        </th>
+                        <th 
+                          className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
+                          onClick={() => handleSort('documents')}
+                        >
+                          <div className="flex items-center">
+                            Documents
+                            {sortConfig?.key === 'documents' && (
+                              <span className="ml-1">
+                                {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                              </span>
+                            )}
+                          </div>
+                        </th>
+                        <th 
+                          className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
+                          onClick={() => handleSort('status')}
+                        >
+                          <div className="flex items-center">
+                            Status
+                            {sortConfig?.key === 'status' && (
+                              <span className="ml-1">
+                                {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                              </span>
+                            )}
+                          </div>
+                        </th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-neutral-200">
+                      {tender.offers?.map((sub) => (
+                        <tr key={sub.id} className="hover:bg-neutral-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 h-10 w-10 rounded-full bg-neutral-200 flex items-center justify-center">
+                                <span className="text-neutral-700 font-medium">
+                                  {sub.vendor.name.split(' ').map(n => n[0]).join('')}
+                                </span>
+                              </div>
+                              <div className="ml-4">
+                                <div className="text-sm font-medium text-neutral-900">{sub.vendor.name}</div>
+                                <div className="text-sm text-neutral-500">{sub.vendor.email}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                            {formatDate(sub.submitted_at)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                            {sub.documents?.length} documents
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(sub.offer_status)}`}>
+                              {getStatusIcon(sub.offer_status)}
+                              {sub.offer_status.charAt(0).toUpperCase() + sub.offer_status.slice(1)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button
+                              onClick={() => navigate(`/tenders/${tender.documentId}/submissions/${sub.documentId}/evaluate`)}
+                              className="inline-flex items-center px-3 py-1.5 bg-primary-50 text-primary-700 text-sm font-medium rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
+                            >
+                              Evaluate
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
-          );
+          </div>
+        );
       
       case 'evaluators':
         return (
@@ -809,17 +805,17 @@ const TenderDetails: React.FC = () => {
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Assigned Evaluators</h2>
-                    <button
+                <button 
                   onClick={() => setIsAssignModalOpen(true)}
                   className="inline-flex items-center px-3 py-1.5 bg-primary-50 text-primary-700 text-sm font-medium rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
                 >
                   <Users className="h-4 w-4 mr-1.5" />
                   Assign Evaluator
-                    </button>
+                </button>
               </div>
               
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-neutral-200">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-neutral-200">
                   <thead className="bg-neutral-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Evaluator</th>
@@ -951,12 +947,12 @@ const TenderDetails: React.FC = () => {
                               <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Evaluator</th>
                               <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Expertise</th>
                               <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Rating</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-neutral-200">
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-neutral-200">
                             {availableEvaluators.map((evaluator) => (
                               <tr key={evaluator.id} className="hover:bg-neutral-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
+                                <td className="px-6 py-4 whitespace-nowrap">
                                   <input
                                     type="checkbox"
                                     checked={selectedEvaluators.includes(evaluator.id)}
@@ -971,18 +967,18 @@ const TenderDetails: React.FC = () => {
                                   />
                                 </td>
                                 <td className="px-6 py-4">
-                            <div className="flex items-center">
+                                  <div className="flex items-center">
                                     <div className="flex-shrink-0 h-10 w-10">
                                       <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
                                         <UserCheck className="h-5 w-5 text-primary-600" />
                                       </div>
-                              </div>
-                              <div className="ml-4">
+                                    </div>
+                                    <div className="ml-4">
                                       <div className="text-sm font-medium text-neutral-900">{evaluator.name}</div>
                                       <div className="text-sm text-neutral-500">{evaluator.email}</div>
-                              </div>
-                            </div>
-                          </td>
+                                    </div>
+                                  </div>
+                                </td>
                                 <td className="px-6 py-4">
                                   <div className="flex flex-wrap gap-1">
                                     {evaluator.expertise.map((skill, index) => (
@@ -994,17 +990,17 @@ const TenderDetails: React.FC = () => {
                                       </span>
                                     ))}
                                   </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="flex items-center">
                                     <Star className="h-4 w-4 text-warning-500 mr-1" />
                                     <span className="text-sm text-neutral-900">{evaluator.rating}</span>
                                   </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
 
@@ -1029,13 +1025,13 @@ const TenderDetails: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                </div>
-              )}
+              </div>
+            )}
           </div>
         );
       
-      
         return renderSubmissionsTab();
+        
       default:
         return null;
     }
@@ -1066,7 +1062,7 @@ const TenderDetails: React.FC = () => {
             >
               <Pencil className="w-4 h-4 mr-1.5" />
               Edit Tender
-            </button>
+          </button>
           )}
           <button 
             onClick={() => {
@@ -1153,7 +1149,7 @@ const TenderDetails: React.FC = () => {
                         : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
                       }`}
           >
-            Offers {tender.offers?.length > 0 && `(${tender.offers.length})`}
+            Submissions {tender.offers?.length > 0 && `(${tender.offers.length})`}
           </button>
           <button
             onClick={() => setActiveTab('evaluators')}

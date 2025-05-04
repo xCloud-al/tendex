@@ -21,6 +21,8 @@ export interface Vendor {
 }
 
 export interface Offer {
+  documentId: any;
+  submitted_at: string;
   id: string;
   tenderId: string;
   vendor: Vendor;
@@ -35,6 +37,7 @@ export interface Offer {
 }
 
 export interface Tender {
+  documentId: any;
   id: string;
   title: string;
   description: string;
