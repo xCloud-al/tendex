@@ -145,31 +145,39 @@ const TenderDetails: React.FC = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'submitted':
+  const getStatusColor = (status?: string) => {
+    if (!status) return 'bg-neutral-100 text-neutral-700';
+    
+    switch (status.toUpperCase()) {
+      case 'DRAFT':
+        return 'bg-neutral-100 text-neutral-700';
+      case 'SUBMITTED':
         return 'bg-primary-100 text-primary-700';
-      case 'qualified':
+      case 'QUALIFIED':
         return 'bg-success-100 text-success-700';
-      case 'disqualified':
+      case 'DISQUALIFIED':
         return 'bg-error-100 text-error-700';
-      case 'accepted':
+      case 'APPROVED':
         return 'bg-success-100 text-success-700';
-      case 'pending':
-        return 'bg-warning-100 text-warning-700';
       default:
         return 'bg-neutral-100 text-neutral-700';
     }
   };
   
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'qualified':
-        return <CheckCircle className="h-4 w-4 mr-1" />;
-      case 'disqualified':
-        return <AlertTriangle className="h-4 w-4 mr-1" />;
-      case 'pending':
+  const getStatusIcon = (status?: string) => {
+    if (!status) return null;
+    
+    switch (status.toUpperCase()) {
+      case 'DRAFT':
+        return <FileText className="h-4 w-4 mr-1" />;
+      case 'SUBMITTED':
         return <Clock className="h-4 w-4 mr-1" />;
+      case 'QUALIFIED':
+        return <CheckCircle className="h-4 w-4 mr-1" />;
+      case 'DISQUALIFIED':
+        return <AlertTriangle className="h-4 w-4 mr-1" />;
+      case 'APPROVED':
+        return <CheckCircle className="h-4 w-4 mr-1" />;
       default:
         return null;
     }
