@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Filter, Search, FileText, ArrowDown, ArrowUp, Calendar, CheckCircle, Loader, X, Download, Copy, ArrowRight, Clock, AlertTriangle, FileCheck, Pencil } from 'lucide-react';
-import { mockTenders } from '../data/mockData';
+import { Plus, Filter, Search, FileText, ArrowDown, ArrowUp, Calendar, CheckCircle, Loader, X, Download, Copy, ArrowRight, Clock, AlertTriangle, FileCheck, Pencil, Users, Edit, Trash2, ExternalLink, BarChart, Share2, Loader2 } from 'lucide-react';
 import { formatDate, daysUntil } from '../utils/dateUtils';
 import { stripHtml } from '../utils/textUtils';
+import { useGetTendersQuery } from '../store/services/api';
 
-type SortField = 'title' | 'publishDate' | 'deadline' | 'status';
+type SortField = 'title' | 'publishDate' | 'deadline' | 'status' | 'progress' | 'submissions';
 type SortDirection = 'asc' | 'desc';
 
 const ITEMS_PER_PAGE = 10;
@@ -17,40 +17,51 @@ const Tenders: React.FC = () => {
   const [sortField, setSortField] = useState<SortField>('publishDate');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+  const { data: tenders = [], isLoading, error } = useGetTendersQuery();
+
+  console.log(tenders);
   
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
     }
+    setSortConfig({ key, direction });
   };
   
   // Filter and sort tenders
-  const filteredTenders = mockTenders
+  const filteredTenders = tenders
     .filter(tender => 
-      (statusFilter === 'all' || tender.status === statusFilter) &&
+      (statusFilter === 'all' || tender.tender_status === statusFilter) &&
       (tender.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
        tender.description.toLowerCase().includes(searchQuery.toLowerCase()))
     )
     .sort((a, b) => {
-      if (sortField === 'title') {
-        return sortDirection === 'asc' 
+      if (sortConfig?.key === 'title') {
+        return sortConfig.direction === 'asc' 
           ? a.title.localeCompare(b.title)
           : b.title.localeCompare(a.title);
-      } else if (sortField === 'publishDate') {
-        return sortDirection === 'asc'
+      } else if (sortConfig?.key === 'publishDate') {
+        return sortConfig.direction === 'asc'
           ? new Date(a.publishDate).getTime() - new Date(b.publishDate).getTime()
           : new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime();
-      } else if (sortField === 'deadline') {
-        return sortDirection === 'asc'
+      } else if (sortConfig?.key === 'deadline') {
+        return sortConfig.direction === 'asc'
           ? new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
           : new Date(b.deadline).getTime() - new Date(a.deadline).getTime();
-      } else if (sortField === 'status') {
-        return sortDirection === 'asc'
+      } else if (sortConfig?.key === 'status') {
+        return sortConfig.direction === 'asc'
           ? a.status.localeCompare(b.status)
           : b.status.localeCompare(a.status);
+      } else if (sortConfig?.key === 'progress') {
+        return sortConfig.direction === 'asc'
+          ? a.progress - b.progress
+          : b.progress - a.progress;
+      } else if (sortConfig?.key === 'submissions') {
+        return sortConfig.direction === 'asc'
+          ? a.submissions - b.submissions
+          : b.submissions - a.submissions;
       }
       return 0;
     });
@@ -100,6 +111,45 @@ const Tenders: React.FC = () => {
       }
     });
   };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'active':
+        return <Clock className="h-3 w-3 mr-1 inline" />;
+      case 'completed':
+        return <CheckCircle className="h-3 w-3 mr-1 inline" />;
+      case 'evaluation':
+        return <FileCheck className="h-3 w-3 mr-1 inline" />;
+      case 'draft':
+        return <FileText className="h-3 w-3 mr-1 inline" />;
+      default:
+        return <AlertTriangle className="h-3 w-3 mr-1 inline" />;
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh]">
+        <AlertTriangle className="h-16 w-16 text-error-500 mb-4" />
+        <h2 className="text-2xl font-bold text-neutral-700 mb-2">Error Loading Tenders</h2>
+        <p className="text-neutral-500 mb-4">There was a problem loading the tenders. Please try again later.</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in">
@@ -159,9 +209,9 @@ const Tenders: React.FC = () => {
                 >
                   <div className="flex items-center">
                     <span>Tender Title</span>
-                    {sortField === 'title' && (
+                    {sortConfig?.key === 'title' && (
                       <span className="ml-2">
-                        {sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
+                        {sortConfig.direction === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
                       </span>
                     )}
                   </div>
@@ -173,9 +223,9 @@ const Tenders: React.FC = () => {
                 >
                   <div className="flex items-center">
                     <span>Published</span>
-                    {sortField === 'publishDate' && (
+                    {sortConfig?.key === 'publishDate' && (
                       <span className="ml-2">
-                        {sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
+                        {sortConfig.direction === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
                       </span>
                     )}
                   </div>
@@ -187,9 +237,9 @@ const Tenders: React.FC = () => {
                 >
                   <div className="flex items-center">
                     <span>Deadline</span>
-                    {sortField === 'deadline' && (
+                    {sortConfig?.key === 'deadline' && (
                       <span className="ml-2">
-                        {sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
+                        {sortConfig.direction === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
                       </span>
                     )}
                   </div>
@@ -201,9 +251,9 @@ const Tenders: React.FC = () => {
                 >
                   <div className="flex items-center">
                     <span>Status</span>
-                    {sortField === 'status' && (
+                    {sortConfig?.key === 'status' && (
                       <span className="ml-2">
-                        {sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
+                        {sortConfig.direction === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
                       </span>
                     )}
                   </div>
@@ -225,7 +275,7 @@ const Tenders: React.FC = () => {
               ) : (
                 currentTenders.map((tender) => {
                   const daysLeft = daysUntil(tender.deadline);
-                  const isUrgent = daysLeft !== null && daysLeft < 3 && tender.status === 'active';
+                  const isUrgent = daysLeft !== null && daysLeft < 3 && tender.tender_status === 'active';
                   
                   return (
                     <tr key={tender.id} className="hover:bg-neutral-50">
@@ -236,7 +286,7 @@ const Tenders: React.FC = () => {
                           </div>
                           <div>
                             <Link 
-                              to={`/tenders/${tender.id}`}
+                              to={`/tenders/${tender.documentId}`}
                               className="text-primary-600 hover:text-primary-800 font-medium"
                             >
                               {tender.title}
@@ -250,7 +300,7 @@ const Tenders: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
                         <div className="flex items-center">
                           <Calendar className="h-4 w-4 mr-2 text-neutral-400" />
-                          {formatDate(tender.publishDate)}
+                          {formatDate(tender.open_date)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -263,12 +313,9 @@ const Tenders: React.FC = () => {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeClass(tender.status)}`}>
-                          {tender.status === 'active' && <Clock className="h-3 w-3 mr-1 inline" />}
-                          {tender.status === 'completed' && <CheckCircle className="h-3 w-3 mr-1 inline" />}
-                          {tender.status === 'evaluation' && <FileCheck className="h-3 w-3 mr-1 inline" />}
-                          {tender.status === 'draft' && <Pencil className="h-3 w-3 mr-1 inline" />}
-                          {tender.status.charAt(0).toUpperCase() + tender.status.slice(1)}
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeClass(tender.tender_status)}`}>
+                          {getStatusIcon(tender.tender_status)}
+                          {tender.tender_status.charAt(0).toUpperCase() + tender.tender_status.slice(1)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -281,7 +328,7 @@ const Tenders: React.FC = () => {
                             <Copy className="h-5 w-5" />
                           </button>
                           <Link 
-                            to={`/tenders/${tender.id}`} 
+                            to={`/tenders/${tender.documentId}`} 
                             className="text-primary-600 hover:text-primary-800"
                             title="View Details"
                           >
