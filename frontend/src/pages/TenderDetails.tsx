@@ -6,7 +6,11 @@ import {
   Loader2
 } from 'lucide-react';
 import { formatDate, daysUntil } from '../utils/dateUtils';
+<<<<<<< HEAD
 import { useCheckEligibilityMutation, useGetTenderByIdQuery } from '../store/services/api';
+=======
+import { useCheckEligibilityMutation, useRunAutomaticEvaluationMutation } from '../store/services/api';
+>>>>>>> 60e007f4a11e764bb658f307c84d3b5fea23fe8b
 import { ToastContext } from '../components/Layout';
 import { useContext } from 'react';
 import JSZip from 'jszip';
@@ -66,6 +70,7 @@ const TenderDetails: React.FC = () => {
   ]);
   const [selectedEvaluators, setSelectedEvaluators] = useState<string[]>([]);
   const [checkEligibility, { isLoading: isCheckingEligibility }] = useCheckEligibilityMutation();
+  const [runAutomaticEvaluation, { isLoading: isRunningAutomaticEvaluation }] = useRunAutomaticEvaluationMutation();
   const { addToast } = useContext(ToastContext);
   const { data: tender, isLoading, error } = useGetTenderByIdQuery(id!);
   
@@ -129,6 +134,7 @@ const TenderDetails: React.FC = () => {
 
   const handleAICheck = async () => {
     try {
+<<<<<<< HEAD
       // Run AI check for each offer
       const updatedOffers = await Promise.all(
         tender.offers.map(async (offer: Offer) => {
@@ -148,6 +154,28 @@ const TenderDetails: React.FC = () => {
           };
         })
       );
+=======
+      const result = await runAutomaticEvaluation({
+        tenderId: id!
+      }).unwrap();
+
+      // Update submissions with the evaluation results
+      const updatedSubmissions = submissions.map(sub => {
+        const evaluation = result.find(evaluationResult => evaluationResult.offer === sub.id);
+        if (!evaluation) return sub;
+
+        return {
+          ...sub,
+          aiCheck: {
+            isQualified: evaluation.evaluation.overall_qualification_status === 'PASS',
+            reasons: evaluation.evaluation.missing_documents,
+            criteriaVerification: evaluation.evaluation.criteria_verification,
+            score: evaluation.evaluation.overall_qualification_status === 'PASS' ? 100 : 0
+          },
+          status: evaluation.evaluation.overall_qualification_status === 'PASS' ? 'qualified' as const : 'disqualified' as const
+        };
+      });
+>>>>>>> 60e007f4a11e764bb658f307c84d3b5fea23fe8b
 
       // Update the tender with the new offers
       tender.offers = updatedOffers;
@@ -164,21 +192,29 @@ const TenderDetails: React.FC = () => {
       case 'submitted':
         return 'bg-primary-100 text-primary-700';
       case 'qualified':
-        return 'bg-warning-100 text-warning-700';
+        return 'bg-success-100 text-success-700';
       case 'disqualified':
         return 'bg-error-100 text-error-700';
       case 'accepted':
         return 'bg-success-100 text-success-700';
+      case 'pending':
+        return 'bg-warning-100 text-warning-700';
       default:
         return 'bg-neutral-100 text-neutral-700';
     }
   };
   
-  const getStatusIcon = () => {
-    if (isActive) return <Clock className="h-5 w-5 mr-2" />;
-    if (isCompleted) return <CheckCircle className="h-5 w-5 mr-2" />;
-    if (isEvaluation) return <FileCheck className="h-5 w-5 mr-2" />;
-    return <AlertTriangle className="h-5 w-5 mr-2" />;
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'qualified':
+        return <CheckCircle className="h-4 w-4 mr-1" />;
+      case 'disqualified':
+        return <AlertTriangle className="h-4 w-4 mr-1" />;
+      case 'pending':
+        return <Clock className="h-4 w-4 mr-1" />;
+      default:
+        return null;
+    }
   };
   
   const handleEdit = () => {
@@ -244,6 +280,39 @@ const TenderDetails: React.FC = () => {
           >
             {sortConfig?.direction === 'asc' ? '↑' : '↓'}
           </button>
+  const renderSubmissionsTab = () => (
+    <div className="bg-white rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold">Vendor Submissions</h2>
+          <div className="flex items-center space-x-4">
+            <span className="text-neutral-500 text-sm">
+              {submissions.length} submission{submissions.length !== 1 ? 's' : ''}
+            </span>
+            {!isActive && !isCompleted && (
+              <button
+                onClick={handleAICheck}
+                disabled={hasRunAICheck || isRunningAutomaticEvaluation}
+                className={`inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md border transition-colors
+                  ${(hasRunAICheck || isRunningAutomaticEvaluation)
+                    ? 'bg-neutral-50 text-neutral-400 border-neutral-200 cursor-not-allowed' 
+                    : 'bg-primary-50 text-primary-700 border-primary-200 hover:bg-primary-100'
+                  }`}
+              >
+                {isRunningAutomaticEvaluation ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                    Running AI Check...
+                  </>
+                ) : (
+                  <>
+                    <FileCheck className="h-4 w-4 mr-1.5" />
+                    {hasRunAICheck ? 'AI Check Completed' : 'Run AI Criteria Check'}
+                  </>
+                )}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -728,7 +797,7 @@ const TenderDetails: React.FC = () => {
       {/* Status and Info Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className={`col-span-1 md:col-span-2 flex items-center p-4 border rounded-lg ${getStatusColor(tender.status)}`}>
-          {getStatusIcon()}
+          {getStatusIcon(tender.status)}
           <div>
             <h3 className="font-medium">
               {isActive ? 'Active Tender' : 

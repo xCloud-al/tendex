@@ -31,6 +31,26 @@ interface LoginResponse {
   };
 }
 
+interface CriteriaVerification {
+  criteria_name: string;
+  criteria_status: 'PASS' | 'FAIL';
+  requirement_source: string;
+  evidence_found: string;
+}
+
+interface AutomaticEvaluationResponse {
+  offer: string;
+  evaluation: {
+    overall_qualification_status: 'PASS' | 'FAIL';
+    missing_documents: string[];
+    criteria_verification: CriteriaVerification[];
+  };
+}
+
+interface AutomaticEvaluationRequest {
+  tenderId: string;
+}
+
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({ 
@@ -77,6 +97,13 @@ export const api = createApi({
       providesTags: (result, error, id) => [{ type: 'Submission', id }],
       transformResponse: (response: { data: Offer }) => response.data,
     }),
+    runAutomaticEvaluation: builder.mutation<AutomaticEvaluationResponse[], AutomaticEvaluationRequest>({
+      query: ({ tenderId }) => ({
+        url: '/automatic-evaluations',
+        method: 'POST',
+        body: { tenderId },
+      }),
+    }),
   }),
 });
 
@@ -86,4 +113,5 @@ export const {
   useGetTendersQuery,
   useGetTenderByIdQuery,
   useGetOfferByIdQuery,
+  useRunAutomaticEvaluationMutation 
 } = api; 
