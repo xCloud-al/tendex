@@ -370,8 +370,8 @@ const TenderDetails: React.FC = () => {
                   <p>
                     To ensure fairness, vendor submissions cannot be viewed or evaluated until the tender 
                     deadline has passed. Check back after {formatDate(tender.deadline)}.
-                  </p>
-                </div>
+                </p>
+              </div>
               </div>
             </div>
           </div>
@@ -565,43 +565,43 @@ const TenderDetails: React.FC = () => {
               )}
               
               {tender.documents && tender.documents.length > 0 ? (
-                <div className="space-y-4">
+              <div className="space-y-4">
                   <h3 className="text-lg font-medium text-neutral-700 mb-4">Supporting Documents</h3>
                   {tender.documents.map((doc, index) => (
-                    <div 
-                      key={index} 
-                      className="flex items-center justify-between p-4 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors"
-                    >
-                      <div className="flex items-center">
-                        <div className="bg-primary-100 p-2 rounded mr-4">
-                          <FileText className="h-6 w-6 text-primary-700" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-neutral-800">{doc.name}</h3>
-                          <div className="flex items-center text-sm text-neutral-500 mt-1">
+                  <div 
+                    key={index} 
+                    className="flex items-center justify-between p-4 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors"
+                  >
+                    <div className="flex items-center">
+                      <div className="bg-primary-100 p-2 rounded mr-4">
+                        <FileText className="h-6 w-6 text-primary-700" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-neutral-800">{doc.name}</h3>
+                        <div className="flex items-center text-sm text-neutral-500 mt-1">
                             <span className="mr-3">{doc.ext}</span>
-                            <span className="mr-3">{doc.size}</span>
+                          <span className="mr-3">{doc.size}</span>
                             <span>Updated: {formatDate(doc.updatedAt)}</span>
-                          </div>
                         </div>
                       </div>
-                      <div className="flex space-x-2">
+                    </div>
+                    <div className="flex space-x-2">
                         <a 
                           href={`http://localhost:1337${doc.url}`}
                           download
-                          className="p-1.5 text-neutral-500 hover:text-neutral-700 rounded-full hover:bg-neutral-100"
-                          title="Download"
-                        >
-                          <Download className="h-5 w-5" />
+                        className="p-1.5 text-neutral-500 hover:text-neutral-700 rounded-full hover:bg-neutral-100"
+                        title="Download"
+                      >
+                        <Download className="h-5 w-5" />
                         </a>
                         <a 
                           href={`http://localhost:1337${doc.url}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-1.5 text-neutral-500 hover:text-neutral-700 rounded-full hover:bg-neutral-100"
-                          title="View"
-                        >
-                          <ExternalLink className="h-5 w-5" />
+                        className="p-1.5 text-neutral-500 hover:text-neutral-700 rounded-full hover:bg-neutral-100"
+                        title="View"
+                      >
+                        <ExternalLink className="h-5 w-5" />
                         </a>
                     </div>
                   </div>
@@ -625,9 +625,9 @@ const TenderDetails: React.FC = () => {
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Vendor Submissions</h2>
                 <div className="flex items-center space-x-4">
-                  <span className="text-neutral-500 text-sm">
+                <span className="text-neutral-500 text-sm">
                     {tender.offers?.length} submission{tender.offers?.length !== 1 ? 's' : ''}
-                  </span>
+                </span>
                   {!isActive && !isCompleted && (
                     <button
                       onClick={handleAICheck}
@@ -693,7 +693,7 @@ const TenderDetails: React.FC = () => {
                           onClick={() => handleSort('vendor')}
                         >
                           <div className="flex items-center">
-                            Vendor
+                          Vendor
                             {sortConfig?.key === 'vendor' && (
                               <span className="ml-1">
                                 {sortConfig.direction === 'asc' ? '↑' : '↓'}
@@ -706,7 +706,7 @@ const TenderDetails: React.FC = () => {
                           onClick={() => handleSort('submittedOn')}
                         >
                           <div className="flex items-center">
-                            Submitted On
+                          Submitted On
                             {sortConfig?.key === 'submittedOn' && (
                               <span className="ml-1">
                                 {sortConfig.direction === 'asc' ? '↑' : '↓'}
@@ -719,7 +719,7 @@ const TenderDetails: React.FC = () => {
                           onClick={() => handleSort('documents')}
                         >
                           <div className="flex items-center">
-                            Documents
+                          Documents
                             {sortConfig?.key === 'documents' && (
                               <span className="ml-1">
                                 {sortConfig.direction === 'asc' ? '↑' : '↓'}
@@ -732,7 +732,7 @@ const TenderDetails: React.FC = () => {
                           onClick={() => handleSort('status')}
                         >
                           <div className="flex items-center">
-                            Status
+                          Status
                             {sortConfig?.key === 'status' && (
                               <span className="ml-1">
                                 {sortConfig.direction === 'asc' ? '↑' : '↓'}
@@ -779,7 +779,7 @@ const TenderDetails: React.FC = () => {
                               className="inline-flex items-center px-3 py-1.5 bg-primary-50 text-primary-700 text-sm font-medium rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
                             >
                               Evaluate
-                            </button>
+                              </button>
                           </td>
                         </tr>
                       ))}
@@ -826,8 +826,8 @@ const TenderDetails: React.FC = () => {
                             <div className="flex-shrink-0 h-10 w-10">
                               <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
                                 <UserCheck className="h-5 w-5 text-primary-600" />
-                              </div>
-                            </div>
+                  </div>
+                </div>
                             <div className="ml-4">
                               <Link
                                 to={`/evaluators/${evaluator.id}`}
@@ -835,20 +835,20 @@ const TenderDetails: React.FC = () => {
                               >
                                 {evaluator.name}
                               </Link>
-                            </div>
-                          </div>
+                        </div>
+                        </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="text-sm text-neutral-500">
                             <div className="flex items-center">
                               <Mail className="h-4 w-4 mr-2" />
                               {evaluator.email}
-                            </div>
+                      </div>
                             <div className="flex items-center mt-1">
                               <Phone className="h-4 w-4 mr-2" />
                               {evaluator.phone}
-                            </div>
-                          </div>
+                      </div>
+                    </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex flex-wrap gap-1">
@@ -858,9 +858,9 @@ const TenderDetails: React.FC = () => {
                                 className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800"
                               >
                                 {skill}
-                              </span>
+                          </span>
                             ))}
-                          </div>
+                        </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(evaluator.status)}`}>
@@ -871,7 +871,7 @@ const TenderDetails: React.FC = () => {
                           <div className="flex items-center">
                             <Star className="h-4 w-4 text-warning-500 mr-1" />
                             <span className="text-sm text-neutral-900">{evaluator.rating}</span>
-                          </div>
+                        </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end space-x-3">
@@ -891,14 +891,14 @@ const TenderDetails: React.FC = () => {
                             >
                               Remove
                             </button>
-                          </div>
+                      </div>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              </div>
-            </div>
+                    </div>
+                      </div>
 
             {/* Assign Evaluator Modal */}
             {isAssignModalOpen && (
@@ -915,8 +915,8 @@ const TenderDetails: React.FC = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                       </button>
-                    </div>
-
+                  </div>
+                  
                     <div className="mb-6">
                       <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-neutral-200">
@@ -963,13 +963,13 @@ const TenderDetails: React.FC = () => {
                                     <div className="flex-shrink-0 h-10 w-10">
                                       <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
                                         <UserCheck className="h-5 w-5 text-primary-600" />
-                                      </div>
-                                    </div>
+                    </div>
+                          </div>
                                     <div className="ml-4">
                                       <div className="text-sm font-medium text-neutral-900">{evaluator.name}</div>
                                       <div className="text-sm text-neutral-500">{evaluator.email}</div>
-                                    </div>
-                                  </div>
+                          </div>
+                        </div>
                                 </td>
                                 <td className="px-6 py-4">
                                   <div className="flex flex-wrap gap-1">
@@ -981,21 +981,21 @@ const TenderDetails: React.FC = () => {
                                         {skill}
                                       </span>
                                     ))}
-                                  </div>
+                          </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="flex items-center">
                                     <Star className="h-4 w-4 text-warning-500 mr-1" />
                                     <span className="text-sm text-neutral-900">{evaluator.rating}</span>
-                                  </div>
+                          </div>
                                 </td>
                               </tr>
                             ))}
                           </tbody>
                         </table>
-                      </div>
-                    </div>
-
+                          </div>
+                        </div>
+                        
                     <div className="flex justify-end space-x-3">
                       <button
                         onClick={() => setIsAssignModalOpen(false)}
@@ -1014,11 +1014,11 @@ const TenderDetails: React.FC = () => {
                       >
                         Assign Selected
                       </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
         );
       
