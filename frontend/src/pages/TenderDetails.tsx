@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { mockTenders, mockSubmissions } from '../data/mockData';
 import { formatDate, daysUntil } from '../utils/dateUtils';
-import { useCheckEligibilityMutation } from '../store/services/api';
+import { useCheckEligibilityMutation, useRunAutomaticEvaluationMutation } from '../store/services/api';
 import { ToastContext } from '../components/Layout';
 import { useContext } from 'react';
 
@@ -65,6 +65,7 @@ const TenderDetails: React.FC = () => {
   ]);
   const [selectedEvaluators, setSelectedEvaluators] = useState<string[]>([]);
   const [checkEligibility, { isLoading: isCheckingEligibility }] = useCheckEligibilityMutation();
+  const [runAutomaticEvaluation, { isLoading: isRunningAutomaticEvaluation }] = useRunAutomaticEvaluationMutation();
   const { addToast } = useContext(ToastContext);
   
   const tender = mockTenders.find(t => t.id === id);
@@ -127,26 +128,26 @@ const TenderDetails: React.FC = () => {
 
   const handleAICheck = async () => {
     try {
-      // Run AI check for each submission
-      const updatedSubmissions = await Promise.all(
-        submissions.map(async (sub) => {
-          const result = await checkEligibility({
-            tenderId: id!,
-            vendorId: sub.vendor.id
-          }).unwrap();
+      const result = await runAutomaticEvaluation({
+        tenderId: id!
+      }).unwrap();
 
-          return {
-            ...sub,
-            aiCheck: {
-              isQualified: result.isEligible,
-              reasons: result.missingCriteria,
-              feedback: result.feedback,
-              score: result.isEligible ? 100 : 0
-            },
-            status: result.isEligible ? 'qualified' as const : 'disqualified' as const
-          };
-        })
-      );
+      // Update submissions with the evaluation results
+      const updatedSubmissions = submissions.map(sub => {
+        const evaluation = result.find(evaluationResult => evaluationResult.offer === sub.id);
+        if (!evaluation) return sub;
+
+        return {
+          ...sub,
+          aiCheck: {
+            isQualified: evaluation.evaluation.overall_qualification_status === 'PASS',
+            reasons: evaluation.evaluation.missing_documents,
+            criteriaVerification: evaluation.evaluation.criteria_verification,
+            score: evaluation.evaluation.overall_qualification_status === 'PASS' ? 100 : 0
+          },
+          status: evaluation.evaluation.overall_qualification_status === 'PASS' ? 'qualified' as const : 'disqualified' as const
+        };
+      });
 
       setSubmissions(updatedSubmissions);
       setHasRunAICheck(true);
@@ -162,21 +163,29 @@ const TenderDetails: React.FC = () => {
       case 'submitted':
         return 'bg-primary-100 text-primary-700';
       case 'qualified':
-        return 'bg-warning-100 text-warning-700';
+        return 'bg-success-100 text-success-700';
       case 'disqualified':
         return 'bg-error-100 text-error-700';
       case 'accepted':
         return 'bg-success-100 text-success-700';
+      case 'pending':
+        return 'bg-warning-100 text-warning-700';
       default:
         return 'bg-neutral-100 text-neutral-700';
     }
   };
   
-  const getStatusIcon = () => {
-    if (isActive) return <Clock className="h-5 w-5 mr-2" />;
-    if (isCompleted) return <CheckCircle className="h-5 w-5 mr-2" />;
-    if (isEvaluation) return <FileCheck className="h-5 w-5 mr-2" />;
-    return <AlertTriangle className="h-5 w-5 mr-2" />;
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'qualified':
+        return <CheckCircle className="h-4 w-4 mr-1" />;
+      case 'disqualified':
+        return <AlertTriangle className="h-4 w-4 mr-1" />;
+      case 'pending':
+        return <Clock className="h-4 w-4 mr-1" />;
+      default:
+        return null;
+    }
   };
   
   const handleEdit = () => {
@@ -203,14 +212,14 @@ const TenderDetails: React.FC = () => {
             {!isActive && !isCompleted && (
               <button
                 onClick={handleAICheck}
-                disabled={hasRunAICheck || isCheckingEligibility}
+                disabled={hasRunAICheck || isRunningAutomaticEvaluation}
                 className={`inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md border transition-colors
-                  ${(hasRunAICheck || isCheckingEligibility)
+                  ${(hasRunAICheck || isRunningAutomaticEvaluation)
                     ? 'bg-neutral-50 text-neutral-400 border-neutral-200 cursor-not-allowed' 
                     : 'bg-primary-50 text-primary-700 border-primary-200 hover:bg-primary-100'
                   }`}
               >
-                {isCheckingEligibility ? (
+                {isRunningAutomaticEvaluation ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
                     Running AI Check...
@@ -340,7 +349,8 @@ const TenderDetails: React.FC = () => {
                       {sub.documentCount} documents
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(sub.status)}`}>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(sub.status)}`}>
+                        {getStatusIcon(sub.status)}
                         {sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
                       </span>
                     </td>
@@ -450,15 +460,24 @@ const TenderDetails: React.FC = () => {
                   {!isActive && !isCompleted && (
                     <button
                       onClick={handleAICheck}
-                      disabled={hasRunAICheck}
+                      disabled={hasRunAICheck || isRunningAutomaticEvaluation}
                       className={`inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md border transition-colors
-                        ${hasRunAICheck 
+                        ${(hasRunAICheck || isRunningAutomaticEvaluation)
                           ? 'bg-neutral-50 text-neutral-400 border-neutral-200 cursor-not-allowed' 
                           : 'bg-primary-50 text-primary-700 border-primary-200 hover:bg-primary-100'
                         }`}
                     >
-                      <FileCheck className="h-4 w-4 mr-1.5" />
-                      {hasRunAICheck ? 'AI Check Completed' : 'Run AI Criteria Check'}
+                      {isRunningAutomaticEvaluation ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                          Running AI Check...
+                        </>
+                      ) : (
+                        <>
+                          <FileCheck className="h-4 w-4 mr-1.5" />
+                          {hasRunAICheck ? 'AI Check Completed' : 'Run AI Criteria Check'}
+                        </>
+                      )}
                     </button>
                   )}
                 </div>
@@ -578,7 +597,8 @@ const TenderDetails: React.FC = () => {
                             {sub.documentCount} documents
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(sub.status)}`}>
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(sub.status)}`}>
+                              {getStatusIcon(sub.status)}
                               {sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
                             </span>
                           </td>
@@ -883,7 +903,7 @@ const TenderDetails: React.FC = () => {
       {/* Status and Info Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className={`col-span-1 md:col-span-2 flex items-center p-4 border rounded-lg ${getStatusColor(tender.status)}`}>
-          {getStatusIcon()}
+          {getStatusIcon(tender.status)}
           <div>
             <h3 className="font-medium">
               {isActive ? 'Active Tender' : 
