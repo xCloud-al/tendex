@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, LogIn } from 'lucide-react';
 import Logo from '../components/Logo';
+import { useLoginMutation } from '../store/services/api';
+import { ToastContext } from '../components/Layout';
+import { useContext } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 interface LocationState {
   from?: {
@@ -11,22 +14,23 @@ interface LocationState {
 }
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState('admin@aadf.org');
-  const [password, setPassword] = useState('password');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { setUserState } = useAuth();
 
   const navigate = useNavigate();
-  const location = useLocation();
-  const { login, isAuthenticated } = useAuth();
+  const [login] = useLoginMutation();
+  const { addToast } = useContext(ToastContext);
 
-  const from = (location.state as LocationState)?.from?.pathname || '/';
-
+  // Check if user is already authenticated
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate(from, { replace: true });
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/');
     }
-  }, [isAuthenticated, navigate, from]);
+  }, []); // Empty dependency array since we only want to check once on mount
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,10 +38,22 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await login(email, password);
-      navigate(from, { replace: true });
+      const response = await login({
+        identifier: email,
+        password: password
+      }).unwrap();
+
+      // Store the JWT token and user data
+      localStorage.setItem('token', response.jwt);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      setUserState(response.user);
+
+      addToast('Login successful!', 'success');
+      navigate('/');
     } catch (err) {
+      console.error('Login failed:', err);
       setError('Invalid email or password');
+      addToast('Invalid email or password', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -79,10 +95,10 @@ const Login: React.FC = () => {
                   name="email"
                   type="email"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
                   className="pl-10 block w-full py-3 border border-neutral-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
                   placeholder="admin@aadf.org"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
             </div>
@@ -100,10 +116,10 @@ const Login: React.FC = () => {
                   name="password"
                   type="password"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 block w-full py-3 border border-neutral-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
                   placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
             </div>

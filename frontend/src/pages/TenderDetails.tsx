@@ -2,10 +2,14 @@ import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   FileText, Calendar, Clock, Users, Download, Edit, Trash2, 
-  CheckCircle, AlertTriangle, ExternalLink, FileCheck, BarChart, Share2, Pencil, UserCheck, Mail, Phone, Star
+  CheckCircle, AlertTriangle, ExternalLink, FileCheck, BarChart, Share2, Pencil, UserCheck, Mail, Phone, Star, 
+  Loader2
 } from 'lucide-react';
 import { mockTenders, mockSubmissions } from '../data/mockData';
 import { formatDate, daysUntil } from '../utils/dateUtils';
+import { useCheckEligibilityMutation } from '../store/services/api';
+import { ToastContext } from '../components/Layout';
+import { useContext } from 'react';
 
 const TenderDetails: React.FC = () => {
   const navigate = useNavigate();
@@ -60,6 +64,8 @@ const TenderDetails: React.FC = () => {
     }
   ]);
   const [selectedEvaluators, setSelectedEvaluators] = useState<string[]>([]);
+  const [checkEligibility, { isLoading: isCheckingEligibility }] = useCheckEligibilityMutation();
+  const { addToast } = useContext(ToastContext);
   
   const tender = mockTenders.find(t => t.id === id);
   
@@ -119,42 +125,36 @@ const TenderDetails: React.FC = () => {
     setSubmissions(sortedSubmissions);
   };
 
-  const handleAICheck = () => {
-    // Update submissions with AI check results
-    const updatedSubmissions = submissions.map(sub => {
-      const isQualified = Math.random() > 0.5;
-      const aiCheck = {
-        isQualified,
-        reasons: isQualified ? [
-          'All required documents are present',
-          'Company has sufficient experience',
-          'Financial capability meets requirements'
-        ] : [
-          'Missing required certifications',
-          'Insufficient financial documentation'
-        ],
-        score: Math.floor(Math.random() * 100)
-      };
+  const handleAICheck = async () => {
+    try {
+      // Run AI check for each submission
+      const updatedSubmissions = await Promise.all(
+        submissions.map(async (sub) => {
+          const result = await checkEligibility({
+            tenderId: id!,
+            vendorId: sub.vendor.id
+          }).unwrap();
 
-      // Update the submission in mockSubmissions
-      const submissionIndex = mockSubmissions.findIndex(s => s.id === sub.id);
-      if (submissionIndex !== -1) {
-        mockSubmissions[submissionIndex] = {
-          ...mockSubmissions[submissionIndex],
-          aiCheck,
-          status: isQualified ? 'qualified' as const : 'disqualified' as const
-        };
-      }
+          return {
+            ...sub,
+            aiCheck: {
+              isQualified: result.isEligible,
+              reasons: result.missingCriteria,
+              feedback: result.feedback,
+              score: result.isEligible ? 100 : 0
+            },
+            status: result.isEligible ? 'qualified' as const : 'disqualified' as const
+          };
+        })
+      );
 
-      return {
-        ...sub,
-        aiCheck,
-        status: isQualified ? 'qualified' as const : 'disqualified' as const
-      };
-    });
-
-    setSubmissions(updatedSubmissions);
-    setHasRunAICheck(true);
+      setSubmissions(updatedSubmissions);
+      setHasRunAICheck(true);
+      addToast('AI criteria check completed successfully', 'success');
+    } catch (error) {
+      console.error('Error running AI check:', error);
+      addToast('Failed to run AI criteria check', 'error');
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -190,6 +190,177 @@ const TenderDetails: React.FC = () => {
     setSelectedEvaluators([]);
     setIsAssignModalOpen(false);
   };
+  
+  const renderSubmissionsTab = () => (
+    <div className="bg-white rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold">Vendor Submissions</h2>
+          <div className="flex items-center space-x-4">
+            <span className="text-neutral-500 text-sm">
+              {submissions.length} submission{submissions.length !== 1 ? 's' : ''}
+            </span>
+            {!isActive && !isCompleted && (
+              <button
+                onClick={handleAICheck}
+                disabled={hasRunAICheck || isCheckingEligibility}
+                className={`inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md border transition-colors
+                  ${(hasRunAICheck || isCheckingEligibility)
+                    ? 'bg-neutral-50 text-neutral-400 border-neutral-200 cursor-not-allowed' 
+                    : 'bg-primary-50 text-primary-700 border-primary-200 hover:bg-primary-100'
+                  }`}
+              >
+                {isCheckingEligibility ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                    Running AI Check...
+                  </>
+                ) : (
+                  <>
+                    <FileCheck className="h-4 w-4 mr-1.5" />
+                    {hasRunAICheck ? 'AI Check Completed' : 'Run AI Criteria Check'}
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+        
+        {isActive && (
+          <div className="bg-warning-50 border-l-4 border-warning-500 p-4 rounded mb-6">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <AlertTriangle className="h-5 w-5 text-warning-500" />
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-warning-800">
+                  Submissions are hidden until deadline
+                </h3>
+                <div className="mt-2 text-sm text-warning-700">
+                  <p>
+                    To ensure fairness, vendor submissions cannot be viewed or evaluated until the tender 
+                    deadline has passed. Check back after {formatDate(tender.deadline)}.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {!isActive && submissions.length === 0 && (
+          <div className="text-center py-8">
+            <Users className="h-12 w-12 text-neutral-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-neutral-700 mb-1">No submissions yet</h3>
+            <p className="text-neutral-500">This tender hasn't received any submissions.</p>
+          </div>
+        )}
+        
+        {!isActive && submissions.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-neutral-200">
+              <thead>
+                <tr>
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
+                    onClick={() => handleSort('vendor')}
+                  >
+                    <div className="flex items-center">
+                      Vendor
+                      {sortConfig?.key === 'vendor' && (
+                        <span className="ml-1">
+                          {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
+                    onClick={() => handleSort('submittedOn')}
+                  >
+                    <div className="flex items-center">
+                      Submitted On
+                      {sortConfig?.key === 'submittedOn' && (
+                        <span className="ml-1">
+                          {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
+                    onClick={() => handleSort('documents')}
+                  >
+                    <div className="flex items-center">
+                      Documents
+                      {sortConfig?.key === 'documents' && (
+                        <span className="ml-1">
+                          {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:text-neutral-700"
+                    onClick={() => handleSort('status')}
+                  >
+                    <div className="flex items-center">
+                      Status
+                      {sortConfig?.key === 'status' && (
+                        <span className="ml-1">
+                          {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-neutral-200">
+                {submissions.map((sub) => (
+                  <tr key={sub.id} className="hover:bg-neutral-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-10 w-10 rounded-full bg-neutral-200 flex items-center justify-center">
+                          <span className="text-neutral-700 font-medium">
+                            {sub.vendor.name.split(' ').map(n => n[0]).join('')}
+                          </span>
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-neutral-900">{sub.vendor.name}</div>
+                          <div className="text-sm text-neutral-500">{sub.vendor.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                      {formatDate(sub.submittedDate)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                      {sub.documentCount} documents
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(sub.status)}`}>
+                        {sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        onClick={() => navigate(`/tenders/${tender.id}/submissions/${sub.id}/evaluate`)}
+                        className="inline-flex items-center px-3 py-1.5 bg-primary-50 text-primary-700 text-sm font-medium rounded-md border border-primary-200 hover:bg-primary-100 transition-colors"
+                      >
+                        Evaluate
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
   
   const renderTabContent = () => {
     switch (activeTab) {
@@ -660,6 +831,8 @@ const TenderDetails: React.FC = () => {
           </div>
         );
       
+        return renderSubmissionsTab();
+        
       default:
         return null;
     }
@@ -690,7 +863,7 @@ const TenderDetails: React.FC = () => {
             >
               <Pencil className="w-4 h-4 mr-1.5" />
               Edit Tender
-            </button>
+          </button>
           )}
           <button 
             onClick={() => {

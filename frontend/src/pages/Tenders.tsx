@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Filter, Search, FileText, ArrowDown, ArrowUp, Calendar, CheckCircle, Loader, X, Download, Copy, ArrowRight } from 'lucide-react';
+import { Plus, Filter, Search, FileText, ArrowDown, ArrowUp, Calendar, CheckCircle, Loader, X, Download, Copy, ArrowRight, Clock, AlertTriangle, FileCheck, Pencil } from 'lucide-react';
 import { mockTenders } from '../data/mockData';
 import { formatDate, daysUntil } from '../utils/dateUtils';
 import { stripHtml } from '../utils/textUtils';
@@ -264,8 +264,10 @@ const Tenders: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeClass(tender.status)}`}>
-                          {tender.status === 'active' && <Loader className="h-3 w-3 mr-1 inline animate-spin" />}
+                          {tender.status === 'active' && <Clock className="h-3 w-3 mr-1 inline" />}
                           {tender.status === 'completed' && <CheckCircle className="h-3 w-3 mr-1 inline" />}
+                          {tender.status === 'evaluation' && <FileCheck className="h-3 w-3 mr-1 inline" />}
+                          {tender.status === 'draft' && <Pencil className="h-3 w-3 mr-1 inline" />}
                           {tender.status.charAt(0).toUpperCase() + tender.status.slice(1)}
                         </span>
                       </td>
