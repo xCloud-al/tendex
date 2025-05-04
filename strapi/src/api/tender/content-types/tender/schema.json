@@ -15,10 +15,6 @@
       "type": "string",
       "required": true
     },
-    "description": {
-      "type": "richtext",
-      "required": true
-    },
     "tender_status": {
       "type": "enumeration",
       "enum": [
@@ -55,14 +51,21 @@
       "mappedBy": "tender"
     },
     "criteria_document": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
       "allowedTypes": [
         "images",
         "files",
         "videos",
         "audios"
-      ],
-      "type": "media",
-      "multiple": false
+      ]
+    },
+    "description": {
+      "type": "text"
+    },
+    "budget": {
+      "type": "biginteger"
     }
   }
 }
