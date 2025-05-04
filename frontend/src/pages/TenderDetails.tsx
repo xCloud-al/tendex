@@ -385,7 +385,7 @@ const TenderDetails: React.FC = () => {
         
       case 'submissions':
         return renderSubmissionsTab();
-      
+        
       default:
         return null;
     }
@@ -416,7 +416,7 @@ const TenderDetails: React.FC = () => {
             >
               <Pencil className="w-4 h-4 mr-1.5" />
               Edit Tender
-            </button>
+          </button>
           )}
           <button 
             onClick={() => {

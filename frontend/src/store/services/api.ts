@@ -11,6 +11,25 @@ interface CriteriaCheckResponse {
   feedback: string;
 }
 
+interface LoginRequest {
+  identifier: string;
+  password: string;
+}
+
+interface LoginResponse {
+  jwt: string;
+  user: {
+    id: number;
+    username: string;
+    email: string;
+    provider: string;
+    confirmed: boolean;
+    blocked: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({ 
@@ -22,6 +41,13 @@ export const api = createApi({
   }),
   tagTypes: ['Tender', 'Submission', 'Vendor'],
   endpoints: (builder) => ({
+    login: builder.mutation<LoginResponse, LoginRequest>({
+      query: (credentials) => ({
+        url: '/auth/local',
+        method: 'POST',
+        body: credentials,
+      }),
+    }),
     checkEligibility: builder.mutation<CriteriaCheckResponse, CriteriaCheckRequest>({
       query: ({ tenderId, vendorId }) => ({
         url: '/ai/check-eligibility',
@@ -32,4 +58,4 @@ export const api = createApi({
   }),
 });
 
-export const { useCheckEligibilityMutation } = api; 
+export const { useLoginMutation, useCheckEligibilityMutation } = api; 

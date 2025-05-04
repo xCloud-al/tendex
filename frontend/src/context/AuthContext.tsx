@@ -4,7 +4,7 @@ import { User } from '../types/User';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  setUserState: (userData: User) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -12,7 +12,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
-  login: async () => {},
+  setUserState: async () => {},
   logout: () => {},
   isAuthenticated: false,
 });
@@ -32,31 +32,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
-    // This would be an API call in a real application
-    // For demo purposes, we'll simulate a successful login
-    const mockUser: User = {
-      id: '1',
-      name: 'Admin User',
-      email,
-      role: 'admin',
-      avatar: 'https://i.pravatar.cc/150?u=admin',
-    };
-    
-    setUser(mockUser);
-    localStorage.setItem('user', JSON.stringify(mockUser));
+  const setUserState = async (userData: User) => {
+    setUser(userData);
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
   };
 
   return (
     <AuthContext.Provider value={{ 
       user, 
       loading, 
-      login, 
+      setUserState, 
       logout,
       isAuthenticated: user !== null
     }}>
