@@ -18,38 +18,38 @@ services:
       - traefik-network
     restart: always
     
-  # database:
-  #   image: postgres:15.2
-  #   volumes:
-  #   - "./database/data:/var/lib/postgresql/data"
-  #   env_file:
-  #     - "database/.env"
-  #   ports:
-  #     - "5432:5432"
-  #   network_mode: bridge
-  #   restart: always
+  database:
+    image: postgres:15.2
+    volumes:
+    - "./database/data:/var/lib/postgresql/data"
+    env_file:
+      - "database/.env"
+    ports:
+      - "54322:5432"
+    networks:
+      - traefik-network
+    restart: always
 
-#  strapi:
-#    build:
-#      context: ./strapi
-#      dockerfile: ./Dockerfile
-#    env_file:
-#      - "./strapi/.env"
-#    volumes:
-#      - ./strapi:/srv/app
-#      - ./strapi/public/uploads:/srv/app/public/uploads
-#    labels:
-#      - traefik.enable=true
-#      - traefik.http.routers.strapi.rule=Host(`strapi.${DOMAIN}`)
-#      - traefik.http.routers.strapi.entrypoints=websecure
-#      - traefik.http.routers.strapi.tls=true
-#      - traefik.http.routers.strapi.tls.certresolver=letsencrypt
-#      - traefik.http.services.strapi.loadbalancer.server.port=1337
-#    depends_on:
- #     - database
-#    network_mode: bridge
-#    restart: always
-
+  strapi:
+    build:
+      context: ./strapi
+      dockerfile: ./Dockerfile
+    env_file:
+      - "./strapi/.env"
+    volumes:
+      - ./strapi/public/uploads:/opt/app/public/uploads
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.strapi.rule=Host(`strapi.${DOMAIN}`)
+      - traefik.http.routers.strapi.entrypoints=websecure
+      - traefik.http.routers.strapi.tls=true
+      - traefik.http.routers.strapi.tls.certresolver=letsencrypt
+      - traefik.http.services.strapi.loadbalancer.server.port=1337
+    depends_on:
+      - database
+    networks:
+      - traefik-network
+    restart: always
 
 networks:
   traefik-network:

@@ -1,21 +1,29 @@
-FROM node:20.3.0-alpine
+# Creating multi-stage build for production
+FROM node:18-alpine AS build
+RUN apk add --no-cache vips-dev
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
 
-WORKDIR /srv/app
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the application
+WORKDIR /opt/
+COPY package.json package-lock.json ./
+RUN npm install --only=production
+ENV PATH=/opt/node_modules/.bin:$PATH
+WORKDIR /opt/app
 COPY . .
-
-# Build the application
 RUN npm run build
 
-# Expose the port
-EXPOSE 1337
+# Creating final production image
+FROM node:18-alpine
+RUN apk add --no-cache vips-dev
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+WORKDIR /opt/
+COPY --from=build /opt/node_modules ./node_modules
+WORKDIR /opt/app
+COPY --from=build /opt/app ./
+ENV PATH=/opt/node_modules/.bin:$PATH
 
-# Start the application
-CMD ["npm", "run", "start"] 
+RUN chown -R node:node /opt/app
+USER node
+EXPOSE 1337
+CMD ["npm", "run", "start"]

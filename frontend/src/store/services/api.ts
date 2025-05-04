@@ -54,7 +54,7 @@ interface AutomaticEvaluationRequest {
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({ 
-    baseUrl: 'http://localhost:1337/api',
+    baseUrl: 'https://strapi.tendex.xcloud.al/api',
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
       if (token) {
