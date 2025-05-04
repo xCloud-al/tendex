@@ -1,5 +1,5 @@
 version: '3'
-name: tendex-prod
+name: tendexx-prod
 
 services:
   frontend:
@@ -14,7 +14,8 @@ services:
       - traefik.http.routers.frontend.tls.certresolver=letsencrypt
     # env_file:
     #   - "frontend/.env"
-    network_mode: bridge
+    networks:
+      - traefik-network
     restart: always
     
   # database:
@@ -28,25 +29,31 @@ services:
   #   network_mode: bridge
   #   restart: always
 
-  strapi:
-    build:
-      context: ./strapi
-      dockerfile: ./Dockerfile
-    env_file:
-      - "./strapi/.env"
-    volumes:
-      - ./strapi:/srv/app
-      - ./strapi/public/uploads:/srv/app/public/uploads
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.strapi.rule=Host(`strapi.${DOMAIN}`)
-      - traefik.http.routers.strapi.entrypoints=websecure
-      - traefik.http.routers.strapi.tls=true
-      - traefik.http.routers.strapi.tls.certresolver=letsencrypt
-      - traefik.http.services.strapi.loadbalancer.server.port=1337
-    depends_on:
-      - database
-    network_mode: bridge
-    restart: always
+#  strapi:
+#    build:
+#      context: ./strapi
+#      dockerfile: ./Dockerfile
+#    env_file:
+#      - "./strapi/.env"
+#    volumes:
+#      - ./strapi:/srv/app
+#      - ./strapi/public/uploads:/srv/app/public/uploads
+#    labels:
+#      - traefik.enable=true
+#      - traefik.http.routers.strapi.rule=Host(`strapi.${DOMAIN}`)
+#      - traefik.http.routers.strapi.entrypoints=websecure
+#      - traefik.http.routers.strapi.tls=true
+#      - traefik.http.routers.strapi.tls.certresolver=letsencrypt
+#      - traefik.http.services.strapi.loadbalancer.server.port=1337
+#    depends_on:
+ #     - database
+#    network_mode: bridge
+#    restart: always
+
+
+networks:
+  traefik-network:
+    name: traefik-network
+    external: true
 
 # docker compose up -d
