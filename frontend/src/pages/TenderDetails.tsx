@@ -462,12 +462,12 @@ const TenderDetails: React.FC = () => {
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10 rounded-full bg-neutral-200 flex items-center justify-center">
                           <span className="text-neutral-700 font-medium">
-                            {sub.vendor.name.split(' ').map(n => n[0]).join('')}
+                            {sub.vendor?.name.split(' ').map(n => n[0]).join('')}
                           </span>
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-neutral-900">{sub.vendor.name}</div>
-                          <div className="text-sm text-neutral-500">{sub.vendor.email}</div>
+                          <div className="text-sm font-medium text-neutral-900">{sub.vendor?.name}</div>
+                          <div className="text-sm text-neutral-500">{sub.vendor?.email}</div>
                         </div>
                       </div>
                     </td>
@@ -760,12 +760,12 @@ const TenderDetails: React.FC = () => {
                             <div className="flex items-center">
                               <div className="flex-shrink-0 h-10 w-10 rounded-full bg-neutral-200 flex items-center justify-center">
                                 <span className="text-neutral-700 font-medium">
-                                  {sub.vendor.name.split(' ').map(n => n[0]).join('')}
+                                  {sub.vendor?.name.split(' ').map(n => n[0]).join('')}
                                 </span>
                               </div>
                               <div className="ml-4">
-                                <div className="text-sm font-medium text-neutral-900">{sub.vendor.name}</div>
-                                <div className="text-sm text-neutral-500">{sub.vendor.email}</div>
+                                <div className="text-sm font-medium text-neutral-900">{sub.vendor?.name}</div>
+                                <div className="text-sm text-neutral-500">{sub.vendor?.email}</div>
                               </div>
                             </div>
                           </td>

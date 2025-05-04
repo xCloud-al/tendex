@@ -150,7 +150,7 @@ const SubmissionEvaluation = () => {
           <FileCheck className="h-5 w-5 text-neutral-500 mr-3" />
           <div>
             <h3 className="text-sm font-medium text-neutral-700">Vendor</h3>
-            <p className="text-sm text-neutral-600">{offer.vendor.name}</p>
+            <p className="text-sm text-neutral-600">{offer.vendor?.name}</p>
           </div>
         </div>
       </div>
@@ -169,7 +169,7 @@ const SubmissionEvaluation = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-neutral-700 mb-2">Documents</h3>
-                    <p className="text-neutral-600">{offer.documents.length} documents</p>
+                    <p className="text-neutral-600">{offer.documents?.length} documents</p>
                   </div>
                   <button
                     onClick={handleDownloadAll}
