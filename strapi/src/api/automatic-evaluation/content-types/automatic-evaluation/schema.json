@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "automatic_evaluations",
+  "info": {
+    "singularName": "automatic-evaluation",
+    "pluralName": "automatic-evaluations",
+    "displayName": "AutomaticEvaluation",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "overall_qualification_status": {
+      "type": "enumeration",
+      "enum": [
+        "PASS",
+        "FAIL"
+      ]
+    },
+    "missing_documents": {
+      "type": "json"
+    },
+    "criteria_verification": {
+      "type": "component",
+      "repeatable": true,
+      "component": "offer.criteria-verification"
+    },
+    "offer": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::offer.offer",
+      "inversedBy": "automatic_evaluation"
+    }
+  }
+}

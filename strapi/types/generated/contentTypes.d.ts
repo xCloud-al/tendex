@@ -369,6 +369,44 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiAutomaticEvaluationAutomaticEvaluation
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'automatic_evaluations';
+  info: {
+    description: '';
+    displayName: 'AutomaticEvaluation';
+    pluralName: 'automatic-evaluations';
+    singularName: 'automatic-evaluation';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    criteria_verification: Schema.Attribute.Component<
+      'offer.criteria-verification',
+      true
+    >;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::automatic-evaluation.automatic-evaluation'
+    > &
+      Schema.Attribute.Private;
+    missing_documents: Schema.Attribute.JSON;
+    offer: Schema.Attribute.Relation<'oneToOne', 'api::offer.offer'>;
+    overall_qualification_status: Schema.Attribute.Enumeration<
+      ['PASS', 'FAIL']
+    >;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiEvaluationEvaluation extends Struct.CollectionTypeSchema {
   collectionName: 'evaluations';
   info: {
@@ -385,12 +423,10 @@ export interface ApiEvaluationEvaluation extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    criteria_scores: Schema.Attribute.Component<'score.score-summary', true>;
     evaluator: Schema.Attribute.Relation<
       'oneToOne',
       'plugin::users-permissions.user'
     >;
-    final_score: Schema.Attribute.BigInteger;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -399,6 +435,7 @@ export interface ApiEvaluationEvaluation extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     offer: Schema.Attribute.Relation<'manyToOne', 'api::offer.offer'>;
     publishedAt: Schema.Attribute.DateTime;
+    score: Schema.Attribute.Integer;
     submitted_at: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -418,6 +455,10 @@ export interface ApiOfferOffer extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    automatic_evaluation: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::automatic-evaluation.automatic-evaluation'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -429,16 +470,18 @@ export interface ApiOfferOffer extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::evaluation.evaluation'
     >;
+    final_score: Schema.Attribute.Integer;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::offer.offer'> &
       Schema.Attribute.Private;
     offer_status: Schema.Attribute.Enumeration<['DRAFT', 'SUBMITTED']>;
     publishedAt: Schema.Attribute.DateTime;
-    score_summary: Schema.Attribute.Component<'score.score-summary', true>;
     submitted_at: Schema.Attribute.DateTime;
+    tender: Schema.Attribute.Relation<'manyToOne', 'api::tender.tender'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    vendor: Schema.Attribute.Component<'offer.vendor', false>;
   };
 }
 
@@ -457,6 +500,9 @@ export interface ApiTenderTender extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    criteria_document: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios'
+    >;
     deadline: Schema.Attribute.DateTime;
     description: Schema.Attribute.RichText & Schema.Attribute.Required;
     documents: Schema.Attribute.Media<
@@ -469,6 +515,7 @@ export interface ApiTenderTender extends Struct.CollectionTypeSchema {
       'api::tender.tender'
     > &
       Schema.Attribute.Private;
+    offers: Schema.Attribute.Relation<'oneToMany', 'api::offer.offer'>;
     open_date: Schema.Attribute.DateTime;
     publishedAt: Schema.Attribute.DateTime;
     tender_status: Schema.Attribute.Enumeration<
@@ -479,42 +526,6 @@ export interface ApiTenderTender extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-  };
-}
-
-export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
-  collectionName: 'vendors';
-  info: {
-    description: '';
-    displayName: 'Vendor';
-    pluralName: 'vendors';
-    singularName: 'vendor';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    city: Schema.Attribute.String;
-    country: Schema.Attribute.Enumeration<['AL', 'UK', 'US']>;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    email: Schema.Attribute.Email &
-      Schema.Attribute.Required &
-      Schema.Attribute.Unique;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::vendor.vendor'
-    > &
-      Schema.Attribute.Private;
-    name: Schema.Attribute.String & Schema.Attribute.Required;
-    phone_number: Schema.Attribute.String & Schema.Attribute.Required;
-    publishedAt: Schema.Attribute.DateTime;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    website: Schema.Attribute.String;
   };
 }
 
@@ -1027,10 +1038,10 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
+      'api::automatic-evaluation.automatic-evaluation': ApiAutomaticEvaluationAutomaticEvaluation;
       'api::evaluation.evaluation': ApiEvaluationEvaluation;
       'api::offer.offer': ApiOfferOffer;
       'api::tender.tender': ApiTenderTender;
-      'api::vendor.vendor': ApiVendorVendor;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

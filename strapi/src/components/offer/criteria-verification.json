@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_offer_criteria_verifications",
+  "info": {
+    "displayName": "CriteriaVerification"
+  },
+  "options": {},
+  "attributes": {
+    "criteria_name": {
+      "type": "string"
+    },
+    "criteria_status": {
+      "type": "enumeration",
+      "enum": [
+        "PASS",
+        "FAIL"
+      ]
+    },
+    "requirement_source": {
+      "type": "text"
+    },
+    "evidence_found": {
+      "type": "text"
+    }
+  }
+}

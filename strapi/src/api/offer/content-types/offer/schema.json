@@ -21,12 +21,6 @@
     "submitted_at": {
       "type": "datetime"
     },
-    "score_summary": {
-      "displayName": "ScoreSummary",
-      "type": "component",
-      "repeatable": true,
-      "component": "score.score-summary"
-    },
     "documents": {
       "type": "media",
       "multiple": true,
@@ -42,6 +36,26 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::evaluation.evaluation",
+      "mappedBy": "offer"
+    },
+    "tender": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::tender.tender",
+      "inversedBy": "offers"
+    },
+    "vendor": {
+      "type": "component",
+      "repeatable": false,
+      "component": "offer.vendor"
+    },
+    "final_score": {
+      "type": "integer"
+    },
+    "automatic_evaluation": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::automatic-evaluation.automatic-evaluation",
       "mappedBy": "offer"
     }
   }
